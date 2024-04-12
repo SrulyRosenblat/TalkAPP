@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:alfred_backend/enviroment.dart';
+import 'package:alfred_backend/gcp_storage.dart';
 import 'package:http/http.dart' as http;
 
 class openai {
@@ -22,13 +23,11 @@ class openai {
 
     if (response.statusCode == 200) {
       // make so that writes to mp3 file
-      var filePath = 'output.mp3'; // Replace with desired file path
-      var file = File(filePath);
-      var sink = file.openWrite();
-      // Listen for streamed data and write to file
-      await response.stream.pipe(sink);
-      sink.close();
-      print('Audio saved to $filePath');
+      var filePath = 'output-test534.mp3'; // Replace with desired file path
+      var storage = GCP_Storage();
+      await storage.init();
+      await storage.depositInBucket(response.stream, filePath);
+      print('uplouded to fp');
     } else {
       print(response.reasonPhrase);
     }

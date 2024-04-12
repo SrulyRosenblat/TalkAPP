@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:alfred/alfred.dart';
-import 'package:alfred_backend/bucket.dart';
+import 'package:alfred_backend/gcp_storage.dart';
 import 'package:alfred_backend/db.dart';
 import 'package:alfred_backend/openai.dart';
 

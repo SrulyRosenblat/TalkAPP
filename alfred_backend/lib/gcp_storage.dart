@@ -32,8 +32,34 @@ test_storage() async {
   print('done');
 }
 
-class Bucket {
-  static final bucket_name = "";
+class GCP_Storage {
+  final bucket_name = "";
+  Storage? storage;
 
-  static depositInBucket(path, file) async {}
+  init() async {
+    var jsonCredentials =
+        new File('Service_account_credentials.json').readAsStringSync();
+    var credentials =
+        new auth.ServiceAccountCredentials.fromJson(jsonCredentials);
+
+    // Get an HTTP authenticated client using the service account credentials.
+    List<String> scopes = []
+      ..addAll(datastore.Datastore.Scopes)
+      ..addAll(Storage.SCOPES)
+      ..addAll(PubSub.SCOPES);
+    var client = await auth.clientViaServiceAccount(credentials, scopes);
+
+    // Instantiate objects to access Cloud Datastore, Cloud Storage
+    // and Cloud Pub/Sub APIs.
+    storage = await new Storage(client, 'talk-app-419322');
+    ;
+  }
+
+  depositInBucket(Stream stream, String path) async {
+    if (storage == null) {
+      print("no storage object");
+    }
+    var bucket = await storage!.bucket('talkapp');
+    stream.pipe(bucket.write(path));
+  }
 }
