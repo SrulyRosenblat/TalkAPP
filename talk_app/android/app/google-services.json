@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "955906548828",
+    "project_id": "chat-project-512bb",
+    "storage_bucket": "chat-project-512bb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955906548828:android:4aab49c3676ff022ddf299",
+        "android_client_info": {
+          "package_name": "com.example.talk_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955906548828-45uo9e260j1oi4cmqt8gs051etnl6hjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSXUehBUKc7G-hsLq5LYYhD6jjuJJVIeY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955906548828-45uo9e260j1oi4cmqt8gs051etnl6hjp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "955906548828-5c4tork23b86ksl7hfbsg2o4oc62ptna.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.talkApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
