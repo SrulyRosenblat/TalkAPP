@@ -138,11 +138,16 @@ class openai {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
+      final res = (await response.stream.bytesToString());
+
+      Map<String, dynamic> data = json.decode(res);
+
+      String text = data['choices'][0]['message']['content'];
+
+      return getTranslatedPart(text);
     } else {
       print(response.reasonPhrase);
+      throw Exception(response.reasonPhrase);
     }
-
-    return '';
   }
 }
