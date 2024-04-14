@@ -56,10 +56,12 @@ class GCP_Storage {
   }
 
   depositInBucket(Stream stream, String path) async {
+    String type = 'audio/mpeg';
+
     if (storage == null) {
       print("no storage object");
     }
     var bucket = await storage!.bucket('talkapp');
-    stream.pipe(bucket.write(path));
+    stream.pipe(bucket.write(path, contentType: 'audio/mpeg'));
   }
 }
