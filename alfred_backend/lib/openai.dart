@@ -30,6 +30,7 @@ class openai {
       var storage = GCP_Storage();
       await storage.init();
       await storage.depositInBucket(response.stream, filePath);
+      
       return filePath;
     } else {
       print(response.reasonPhrase);
