@@ -16,3 +16,20 @@ String getTranslatedPart(String text) {
     return aiSplit.last.trim();
   }
 }
+
+String build_Conversation_String(List messages, List roles, String text) {
+  String result = '';
+  for (int i = 0; i < messages.length; i++) {
+    result += '${roles[i] == "assistant" ? "AI" : "Human"}: ${messages[i]}\n';
+  }
+  result += 'Human: $text';
+  return result;
+}
+
+List<Map<String, String>> convert_to_openai_format(List messages, List roles) {
+  List<Map<String, String>> result = [];
+  for (int i = 0; i < messages.length; i++) {
+    result.add({'role': roles[i], 'content': messages[i]});
+  }
+  return result;
+}

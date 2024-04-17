@@ -30,7 +30,7 @@ class openai {
       var storage = GCP_Storage();
       await storage.init();
       await storage.depositInBucket(response.stream, filePath);
-      
+
       return filePath;
     } else {
       print(response.reasonPhrase);
@@ -52,21 +52,57 @@ class openai {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      return response.stream.bytesToString();
+      return json.decode(await response.stream.bytesToString())['text'];
     } else {
       print(response.reasonPhrase);
       throw Exception(response.reasonPhrase);
     }
   }
 
-  static chat(messages) async {
+  static Future<String> chat(
+      List messages, String language, String text) async {
     //TODO
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $api_key'
+    };
+    var request = http.Request(
+        'POST', Uri.parse('https://api.openai.com/v1/chat/completions'));
+    messages.insert(0, {
+      "role": "system",
+      "content":
+          "You are a language model that is built to teach the user $language. \n\nIn order to accomplish this you answer every question and explain everything in $language, no matter what language the user speaks in."
+    });
+    messages.add({"content": text, "role": "user"});
+    request.body = json.encode({
+      "model": "gpt-3.5-turbo",
+      "messages": messages,
+      "temperature": 1,
+      "max_tokens": 1000,
+      "top_p": 1,
+      "frequency_penalty": 0,
+      "presence_penalty": 0
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      final res = (await response.stream.bytesToString());
+
+      Map<String, dynamic> data = json.decode(res);
+
+      String text = data['choices'][0]['message']['content'];
+      return text;
+    } else {
+      print(response.reasonPhrase);
+      throw Exception(response.reasonPhrase);
+    }
   }
-  static Future<String> translate(
-      String text, String from_language, String to_language) async {
+
+  static Future<String> translate(String text, String to_language) async {
     Map<String, String> message = {
-      "From Language": from_language,
-      "To Language": to_language,
+      "to_language": to_language,
       "conversation": text
     };
 
@@ -85,12 +121,12 @@ class openai {
         {
           "role": "system",
           "content":
-              "You are a translation machine given a conversation as context a input language and a target language you translate accurately. the last answer correctly"
+              "You are a translation machine given a conversation as context a input language and a target language you translate accurately.  You never ask for clarification just translate, you are not a chatbot just a translator."
         },
         {
           "role": "user",
           "content":
-              "{\n    \"From Language\" : \"Hebrew\",\n    \"Target Language\" : \"English\",\n    \"conversation\":\"AI: שלום, איך אני יכול לעזור לך היום?\\n\\nHuman: שלום, אני מחפש מידע על תחום האינטליגנציה המלאכותית. יש לך מושג על זה?\\n\\nAI: כן, אני מבין ממש טוב את התחום הזה. האינטליגנציה המלאכותית היא תחום שמבוסס על פיתוח תוכניות ואלגוריתמים שמאפשרים למערכות ממוחשבות לבצע פעולות שדרשו עד כה אנ\"\n}"
+              "{\n    \"to_language\" : \"english\",\n    \"conversation\":\"AI: שלום, איך אני יכול לעזור לך היום?\\n\\nHuman: שלום, אני מחפש מידע על תחום האינטליגנציה המלאכותית. יש לך מושג על זה?\\n\\nAI: כן, אני מבין ממש טוב את התחום הזה. האינטליגנציה המלאכותית היא תחום שמבוסס על פיתוח תוכניות ואלגוריתמים שמאפשרים למערכות ממוחשבות לבצע פעולות שדרשו עד כה אנ\"\n}"
         },
         {
           "role": "assistant",
@@ -100,7 +136,7 @@ class openai {
         {
           "role": "user",
           "content":
-              "{\n  \"From Language\":\"ukrainian\",\n    \"Target Language\":\"English\",\n    \"Conversation\" :\"AI: Добрий день! Чим можу допомогти?\\n\\nHuman: Привіт! Я хочу замовити піцу. Які у вас є види і скільки часу потрібно на доставку?\\n\\nAI: У нас є багато різних видів піци - від класичних до авторських страв. Час доставки зазвичай становить близько 30-45 хвилин, в залежності від вашого місцезнаходження.\\n\\nHuman: Дуже цікаво! Якщо я хочу замовити піцу з тунцем і ананасами, це можливо?\\n\\nAI: Звичайно! Ми готуємо піцу на замовлення, тому будь-які поєднання і\"\n    }"
+              "{\n    \"to_language\":\"English\",\n    \"Conversation\" :\"AI: Добрий день! Чим можу допомогти?\\n\\nHuman: Привіт! Я хочу замовити піцу. Які у вас є види і скільки часу потрібно на доставку?\\n\\nAI: У нас є багато різних видів піци - від класичних до авторських страв. Час доставки зазвичай становить близько 30-45 хвилин, в залежності від вашого місцезнаходження.\\n\\nHuman: Дуже цікаво! Якщо я хочу замовити піцу з тунцем і ананасами, це можливо?\\n\\nAI: Звичайно! Ми готуємо піцу на замовлення, тому будь-які поєднання і\"\n    }"
         },
         {
           "role": "assistant",
@@ -110,7 +146,7 @@ class openai {
         {
           "role": "user",
           "content":
-              "{\n\"From Language\":\"spanish\",\n\"Target Language\":\"English\",\n\"Conversation\" :\"Human: Hola, estoy interesado en aprender más sobre los leopardos. ¿Puedes darme información sobre ellos?\n\nAI: ¡Claro! Los leopardos son felinos majestuosos que se encuentran principalmente en África y algunas partes de Asia. Son conocidos por su agilidad y velocidad, así como por sus impresionantes habilidades de caza. ¿Hay algo en particular que te interese saber sobre los leopardos?\"\n}"
+              "{\n\"to_language\":\"English\",\n\"Conversation\" :\"Human: Hola, estoy interesado en aprender más sobre los leopardos. ¿Puedes darme información sobre ellos?\\n\\nAI: ¡Claro! Los leopardos son felinos majestuosos que se encuentran principalmente en África y algunas partes de Asia. Son conocidos por su agilidad y velocidad, así como por sus impresionantes habilidades de caza. ¿Hay algo en particular que te interese saber sobre los leopardos?\"\n}"
         },
         {
           "role": "assistant",
@@ -120,7 +156,7 @@ class openai {
         {
           "role": "user",
           "content":
-              "{\n    \"From Language\" : \"Hebrew\",\n    \"Target Language\" : \"English\",\n    \"conversation\":\"AI: שלום, איך אני יכול לעזור לך היום? \\n\\nHuman: שלום, רוצה לדעת איך אפשר לדבר בעברית יותר טוב. \\n\\nAI: כמובן! אני כאן כדי לעזור לך לשפר את כישורי העברית שלך.\\n\\nHuman: Thank you! Can you teach me some basic phrases in Hebrew?\\n\\nAI: כן, איך אתה אומר 'thank you' בעברית?\"\n}"
+              "{\n    \"to_language\" : \"English\",\n    \"conversation\":\"AI: שלום, איך אני יכול לעזור לך היום? \\n\\nHuman: שלום, רוצה לדעת איך אפשר לדבר בעברית יותר טוב. \\n\\nAI: כמובן! אני כאן כדי לעזור לך לשפר את כישורי העברית שלך.\\n\\nHuman: Thank you! Can you teach me some basic phrases in Hebrew?\\n\\nAI: כן, איך אתה אומר '\''thank you'\'' בעברית?\"\n}"
         },
         {
           "role": "assistant",
