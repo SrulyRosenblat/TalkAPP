@@ -87,10 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
           switch (_page) {
             case 0:
               page = ChatSelector();
+              break;
             case 1:
               page = Settings();
+              break;
             case 2:
               page = Account(auth: _auth, user: currentUser!);
+              break;
             default:
               page = Center(child: Text("error"));
           }
