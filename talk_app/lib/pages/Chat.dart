@@ -10,7 +10,7 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
-  late List<Map<String, dynamic>> messages; 
+  late List<Map<String, dynamic>> messages;
 
   @override
   void initState() {
@@ -25,6 +25,21 @@ class _ChatState extends State<Chat> {
         'textNative': 'Estoy muy bien, ¿y tú?',
         'textForeign': 'I am doing great, you?',
         'isAI': true,
+      },
+      {
+        'textNative': 'Estoy muy bien, ¿y túfffff?',
+        'textForeign': 'I am doing great, youfffff?',
+        'isAI': true,
+      },
+      {
+        'textNative': 'Hola, qué tallll',
+        'textForeign': 'Hey, how are yoiiiiu',
+        'isAI': false,
+      },
+      {
+        'textNative': 'Hola, qué tal;;;;;',
+        'textForeign': 'Hey, how are you;;;;;',
+        'isAI': false,
       },
     ];
   }
@@ -44,58 +59,73 @@ class _ChatState extends State<Chat> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[messages.length - 1 - index];
-                return ListTile(
-                  title: Text(
-                    message['textNative'],
-                    style: TextStyle(
-                      color: message['isAI'] ? Colors.grey : Colors.blue,
+                bool isAI = message['isAI'];
+                return Row(
+                  mainAxisAlignment: isAI ? MainAxisAlignment.start : MainAxisAlignment.end,
+                  children: [
+                    if (!isAI) ...[
+                      IconButton(
+                        icon: const Icon(Icons.volume_up),
+                        onPressed: () {
+                          // Play user's message
+                        },
+                      ),
+                    ],
+                    Container(
+                      margin: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isAI ? Color(0xFF8A8AFF) : Color(0xFF7AA7FF),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: isAI ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            message['textNative'],
+                            style: TextStyle(fontSize: 16.0, color: Colors.white),
+                          ),
+                          Text(
+                            message['textForeign'],
+                            style: TextStyle(fontSize: 14.0, color: Colors.white70),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  subtitle: Text(message['textForeign']),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.volume_up),
-                    onPressed: () {
-                      // Placeholder function for play message
-                    },
-                  ),
+                    if (isAI) ...[
+                      IconButton(
+                        icon: const Icon(Icons.volume_up),
+                        onPressed: () {
+                          // Play AI's message
+                        },
+                      ),
+                    ],
+                  ],
                 );
               },
             ),
           ),
           const Divider(height: 1),
-          _buildMessageInputArea(), 
+          _buildMicrophoneInputArea(), 
         ],
       ),
     );
   }
 
-  Widget _buildMessageInputArea() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Row(
-        children: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.photo),
-            onPressed: () {
-              // ??
-            },
-          ),
-          Expanded(
-            child: TextField(
-              decoration: const InputDecoration.collapsed(
-                hintText: 'Send a message',
-              ),
-              // handle message
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: () {
-              // send message
-            },
-          ),
-        ],
+
+  Widget _buildMicrophoneInputArea() {
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        child: FloatingActionButton(
+          onPressed: () {
+            // Implement your speech input handling
+          },
+          child: const Icon(Icons.mic),
+        ),
       ),
     );
   }
