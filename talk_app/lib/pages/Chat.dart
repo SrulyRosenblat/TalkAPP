@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class Chat extends StatefulWidget {
   final String chatId;
@@ -14,12 +15,15 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   late List<Map<String, dynamic>> messages;
   late stt.SpeechToText _speech;
+  late FlutterTts flutterTts;
   ValueNotifier<bool> isListening = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    flutterTts = FlutterTts();
+
     messages = [      {
         'textNative': 'Hola, qué tal',
         'textForeign': 'Hey, how are you',
@@ -30,21 +34,11 @@ class _ChatState extends State<Chat> {
         'textForeign': 'I am doing great, you?',
         'isAI': true,
       },
-      {
-        'textNative': 'Estoy muy bien, ¿y túfffff?',
-        'textForeign': 'I am doing great, youfffff?',
-        'isAI': true,
-      },
-      {
-        'textNative': 'Hola, qué tallll',
-        'textForeign': 'Hey, how are yoiiiiu',
-        'isAI': false,
-      },
-      {
-        'textNative': 'Hola, qué tal;;;;;',
-        'textForeign': 'Hey, how are you;;;;;',
-        'isAI': false,
-      },];
+      ];
+  }
+
+  void _speak(String text) async {
+    await flutterTts.speak(text);
   }
 
   void _listen() async {
@@ -115,9 +109,7 @@ class _ChatState extends State<Chat> {
             IconButton(
               icon: Icon(Icons.volume_up),
               color: Colors.black,
-              onPressed: () {
-                // Play user's message
-              },
+              onPressed: () => _speak(message['textNative']),
             ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -154,9 +146,7 @@ class _ChatState extends State<Chat> {
             IconButton(
               icon: Icon(Icons.volume_up),
               color: Colors.black,
-              onPressed: () {
-                // Play AI's message
-              },
+              onPressed: () => _speak(message['textNative']),
             ),
         ],
       ),
