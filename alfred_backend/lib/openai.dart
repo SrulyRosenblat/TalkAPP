@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+// import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:alfred_backend/enviroment.dart';
@@ -7,7 +7,8 @@ import 'package:alfred_backend/functions.dart';
 import 'package:alfred_backend/gcp_storage.dart';
 import 'package:alfred_backend/uuid.dart';
 import 'package:http/http.dart' as http;
-import 'package:uuid/uuid.dart';
+// import 'package:uuid/uuid.dart';
+import 'package:http_parser/http_parser.dart';
 
 class openai {
   static final api_key = env['openai'] ?? '';
@@ -45,8 +46,14 @@ class openai {
         'POST', Uri.parse('https://api.openai.com/v1/audio/transcriptions'));
     request.fields.addAll({'model': 'whisper-1'});
 
-    request.files.add(await http.MultipartFile.fromBytes('file', sound,
-        filename: 'output-test.mp3'));
+    request.files.add(
+      await http.MultipartFile.fromBytes(
+        'file',
+        sound,
+        filename: 'output-test-2.mp3',
+        contentType: MediaType('audio', 'mpeg'),
+      ),
+    );
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();

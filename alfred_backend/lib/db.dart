@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:alfred_backend/enviroment.dart';
-import 'package:gcloud/pubsub.dart';
 import 'package:postgres/postgres.dart';
 
 class DB {
@@ -97,10 +94,23 @@ class DB {
     };
   }
 
-  Future<List<Map<String, dynamic>>> get_user_favorites(String userID) async {
+  Future<List<dynamic>> get_user_favorites(String userID) async {
     return await execute('''
-      SELECT * FROM AudioMessage WHERE UserID = $userID AND Favorite = TRUE;
+      SELECT * FROM AudioMessage WHERE UserID = '$userID' AND Favorite = TRUE;
+  ''') as List;
+  }
+
+  Future<List<dynamic>> get_user_messages(String userID) async {
+    return await execute('''
+      SELECT * FROM AudioMessage WHERE UserID = '$userID'
+  ''') as List;
+  }
+
+  Future<List<dynamic>> get_user_chats(String userID) async {
+    final x = await execute('''
+      SELECT * FROM chat WHERE UserID = '$userID'
   ''');
+    return x;
   }
 
   dynamic get_user(userID) async {

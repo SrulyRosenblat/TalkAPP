@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:alfred/alfred.dart';
 import 'package:alfred_backend/functions.dart';
@@ -13,9 +12,11 @@ class Server {
   final db = DB();
   final storage = GCP_Storage();
 
-  Future start() async {
+  Future start(int port) async {
     await db.init();
     await storage.init();
+
+    app.all('/', (req, res) => 'congrats it works 🎉🎉🎉');
 
     app.post('/upload', (req, res) async {
       final body = await req.bodyAsJsonMap;
@@ -25,18 +26,60 @@ class Server {
 
       Stream<List<int>> stream = Stream.fromIterable([content]);
       await storage.depositInBucket(stream, path);
-      return {
-        'connected': db.isConnected(),
-        'filePath': 'https://storage.cloud.google.com/talkapp/' + path
-      };
+      return 'https://storage.googleapis.com/talkapp/' + path;
     });
 
     app.all('getChat/:id/', (HttpRequest req, HttpResponse res) async {
       String id = req.params['id'];
 
-      return (await db.get_chat_messages(id)).toString();
+      return await db.get_chat_messages(id);
     });
 
+    app.all('getUserChats/:userID/', (HttpRequest req, HttpResponse res) async {
+      String id = req.params['userID'];
+//https://stackoverflow.com/questions/21813942/how-to-convert-datetime-object-to-json
+      List<dynamic> chats = await db.get_user_chats(id);
+      List<int> chatIDs = [];
+      List<String> nativeLanguages = [];
+      List<String> forignLanguages = [];
+      List<String> chatNames = [];
+      for (var chat in chats) {
+        chatIDs.add(chat[0]);
+        nativeLanguages.add(chat[2]);
+        forignLanguages.add(chat[3]);
+        chatNames.add(chat[4]);
+      }
+      return jsonEncode({
+        // 'chatIDs': chatIDs,
+        'chatNames': chatNames.map((e) => e.trim()).toList(),
+        'nativeLanguages': nativeLanguages.map((e) => e.trim()).toList(),
+        'forignLanguages': forignLanguages.map((e) => e.trim()).toList(),
+      });
+    });
+    app.all('getUserFavorites/:userID/',
+        (HttpRequest req, HttpResponse res) async {
+      String id = req.params['userID'];
+      List<dynamic> messages = await db.get_user_favorites(id);
+      List<String> originalTexts = [];
+      List<String?> translatedTexts = [];
+      List<String> roles = [];
+      List<String?> sounds = [];
+
+      for (final m in messages) {
+        translatedTexts.add(m[3]?.trim());
+        originalTexts.add(m[4].trim());
+
+        sounds.add(m[5]?.trim());
+        roles.add(m[6] ? "assistant" : "user");
+      }
+
+      return {
+        "originalTexts": originalTexts,
+        "translatedTexts": translatedTexts,
+        "sounds": sounds,
+        "roles": roles,
+      };
+    });
     app.post('createUser/', (req, res) async {
       final body = await req.bodyAsJsonMap;
       String userID = body['userID'];
@@ -50,9 +93,13 @@ class Server {
       String userID = body['userID'];
       String foreignLang = body['foreignLang'];
       String chatName = body['chatName'];
-      List<dynamic> user = await db.get_user(userID)!;
-      String native = user[2];
-      return db.add_chat(native, foreignLang, userID, chatName);
+      try {
+        List<dynamic> user = await db.get_user(userID)!;
+        String native = user[2];
+        return db.add_chat(native, foreignLang, userID, chatName);
+      } catch (identifier) {
+        throw Exception("user doesn't exist");
+      }
     });
     // app.all('getChatInfo/:id/', (HttpRequest req, HttpResponse res) async {
     //   String id = req.params['id'];
@@ -113,10 +160,10 @@ class Server {
       String translatedResponse = await openai.translate(response, native);
       String responseAudio = await openai.text_to_speech(text: response);
       return db.add_message(chatID, userID, translatedResponse, response,
-          sound: 'https://storage.cloud.google.com/talkapp/' + responseAudio,
+          sound: 'https://storage.googleapis.com/talkapp/' + responseAudio,
           ai: true);
     });
 
-    await app.listen();
+    await app.listen(port = port);
   }
 }

@@ -33,3 +33,10 @@ List<Map<String, String>> convert_to_openai_format(List messages, List roles) {
   }
   return result;
 }
+
+dynamic encoderForDateTime(dynamic item) {
+  if (item is DateTime) {
+    return item.toIso8601String();
+  }
+  return item;
+}

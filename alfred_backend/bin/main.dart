@@ -3,7 +3,9 @@ import 'package:alfred_backend/enviroment.dart';
 import 'server.dart';
 
 main() async {
-  print(env['openai']);
   final server = Server();
-  await server.start();
+
+  final int envPort = env['port'] as int? ?? 8080;
+  print('env $envPort');
+  await server.start(envPort);
 }
