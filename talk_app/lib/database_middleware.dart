@@ -13,7 +13,8 @@ Future<int> createChat(
     String foreignLanguage,
     String? chatName) async {
   var headers = {'Content-Type': 'application/json'};
-  var request = http.Request('POST', Uri.parse('/createChat'));
+  var uri = Uri.parse('$URL/createChat');
+  var request = http.Request('POST', uri);
   request.body = json.encode({
     "userID": userID,
     "foreignLang": foreignLanguage,
