@@ -9,13 +9,12 @@ class ChatSelector extends StatelessWidget {
   void _createChat(BuildContext context) {
     String userID = user.uid;
     String title = "";
-    String language = "";
-
+    String language = "English";
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Center(child: Text('New Chat')),
+          title: const Center(child: Text('Create New Chat')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -26,11 +25,23 @@ class ChatSelector extends StatelessWidget {
                 decoration: const InputDecoration(hintText: "Chat Title"),
               ),
               const SizedBox(height: 8),
-              TextField(
-                onChanged: (value) {
-                  language = value;
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                icon: const Icon (
+                  Icons.arrow_drop_down_circle,
+                  color: Color(0xFF7AA7FF),
+                ),
+                value: language,
+                onChanged: (String? newValue) {
+                  language = newValue!;
                 },
-                decoration: const InputDecoration(hintText: "Chat Language"),
+                items: <String>['English', 'Spanish', 'French', 'German', 'Hebrew', 'Ukrainian']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
             ],
           ),
@@ -75,9 +86,15 @@ class ChatSelector extends StatelessWidget {
         itemCount: chats.length,
         itemBuilder: (context, index) {
           final chat = chats[index];
-          return ListTile(
-            title: Text(chat['title'] ?? 'No title'), // Providing a fallback value for null
-            subtitle: Text(chat['subtitle'] ?? 'No subtitle'), // Providing a fallback value for null
+          return Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF7AA7FF), // Blue background color
+              borderRadius: BorderRadius.circular(8), // Rounded rectangle corners
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+            child: ListTile(
+            title: Text(chat['title'] ?? 'No title', style: const TextStyle(color: Colors.white, fontSize: 24)), // Providing a fallback value for null
+            subtitle: Text(chat['subtitle'] ?? 'No subtitle', style: const TextStyle(color: Colors.white)), // Providing a fallback value for null
             onTap: () {
               if (chat['chatId'] != null) { // Checking for null before navigating
                 Navigator.of(context).push(
@@ -87,7 +104,7 @@ class ChatSelector extends StatelessWidget {
                 );
               }
             },
-          );
+          ));
         },
       ),
       floatingActionButton: FloatingActionButton(

@@ -79,7 +79,13 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat'), centerTitle: true),
+      appBar: AppBar(title: const Text(
+        'Chat',
+        style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF0031AF),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: Column(
         children: [
           Expanded(child: buildMessages()),

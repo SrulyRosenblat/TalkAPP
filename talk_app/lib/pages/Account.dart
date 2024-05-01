@@ -2,58 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Account extends StatelessWidget {
-  void _createChat(BuildContext context) {
-    String userID = user.uid;
-    String title = "";
-    String language = "";
+  final User user;
+  final FirebaseAuth auth;
 
+  const Account({super.key, required this.user, required this.auth});
+
+  void _changeLanguage(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        String selectedLanguage = 'English';
         return AlertDialog(
-          title: const Center(child: Text('New Chat')),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                onChanged: (value) {
-                  title = value;
-                },
-                decoration: const InputDecoration(hintText: "Chat Title"),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                onChanged: (value) {
-                  language = value;
-                },
-                decoration: const InputDecoration(hintText: "Chat Language"),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+          title: const Center(child: Text('Select a Language')),
+          content: DropdownButtonFormField<String>(
+            isExpanded: true,
+            icon: const Icon (
+              Icons.arrow_drop_down_circle,
+              color: Color(0xFF7AA7FF),
             ),
-            TextButton(
-              child: const Text('Create'),
+            value: selectedLanguage,
+            onChanged: (String? newValue) {
+              selectedLanguage = newValue!;
+            },
+            items: <String>['English', 'Spanish', 'French', 'German', 'Hebrew', 'Ukrainian']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+          actions: [
+            ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              child: const Text('OK'),
             ),
           ],
         );
       },
     );
   }
-
-  
-  final User user;
-  final FirebaseAuth auth;
-
-  const Account({super.key, required this.user, required this.auth});
 
   @override
   Widget build(BuildContext context) {
@@ -66,21 +56,18 @@ class Account extends StatelessWidget {
             user.displayName ?? "Anonymous",
             style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
           ),
-          //Text(user.uid),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () {
-              _createChat(context);
-            },
+            onPressed: null,
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF7AA7FF)),
               foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             ),
             child: const SizedBox(
-              width: 300, // Adjust the width of the button
+              width: 300,
               child: Text(
                 'Translation History',
-                textAlign: TextAlign.center, // Center align the text
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
             ),
@@ -92,17 +79,17 @@ class Account extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              _createChat(context);
+              _changeLanguage(context);
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF7AA7FF)),
               foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             ),
             child: const SizedBox(
-              width: 300, // Adjust the width of the button
+              width: 300,
               child: Text(
                 'English',
-                textAlign: TextAlign.center, // Center align the text
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
             ),
@@ -114,17 +101,17 @@ class Account extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              _createChat(context);
+              _changeLanguage(context);
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF7AA7FF)),
               foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             ),
             child: const SizedBox(
-              width: 300, // Adjust the width of the button
+              width: 300,
               child: Text(
                 'English',
-                textAlign: TextAlign.center, // Center align the text
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
             ),
@@ -137,10 +124,10 @@ class Account extends StatelessWidget {
               foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             ),
             child: const SizedBox(
-              width: 300, // Adjust the width of the button
+              width: 300,
               child: Text(
                 'Log Out',
-                textAlign: TextAlign.center, // Center align the text
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
             ),
