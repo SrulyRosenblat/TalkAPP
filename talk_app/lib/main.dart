@@ -23,6 +23,20 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static const customColorScheme = ColorScheme(
+    primary: Color(0xFF7AA7FF),
+    secondary: Colors.green,
+    surface: Colors.white,
+    background: Colors.white,
+    error: Colors.red,
+    onPrimary: Color(0xFF0031AF),
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onBackground: Colors.black,
+    onError: Colors.white,
+    brightness: Brightness.light,
+  );
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -30,11 +44,11 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
-
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        //colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF0031AF)),
+        colorScheme: customColorScheme,
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'talk app'),
+      home: const MyHomePage(title: 'Talk App'),
     );
   }
 }
@@ -48,25 +62,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   int _page = 0;
-  User? _user;
 
   void setPage(int page) {
     setState(() {
       _page = page;
-    });
-  }
-
-  void _setUser(User? user) {
-    setState(() {
-      _user = user;
-    });
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
     });
   }
 
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text(widget.title),
+              title: Text(widget.title, style: TextStyle(color: Colors.white)),
               centerTitle: true,
             ),
             bottomNavigationBar: BottomNavigationBar(
