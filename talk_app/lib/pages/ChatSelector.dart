@@ -93,7 +93,11 @@ class ChatSelector extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createChat(context),
         tooltip: 'New Chat',
-        child: const Icon(Icons.add),
+        shape: const CircleBorder(),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }
