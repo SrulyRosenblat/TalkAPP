@@ -1,8 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:talk_app/database_middleware.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'Chat.dart'; 
 
 class ChatSelector extends StatelessWidget {
-  const ChatSelector({super.key});
+  final User user;
+
+  void _createChat(BuildContext context) {
+    String userID = user.uid;
+    String title = "";
+    String language = "";
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Center(child: Text('New Chat')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                onChanged: (value) {
+                  title = value;
+                },
+                decoration: const InputDecoration(hintText: "Chat Title"),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                onChanged: (value) {
+                  language = value;
+                },
+                decoration: const InputDecoration(hintText: "Chat Language"),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Create'),
+              onPressed: () {
+                createChat(userID, language, title);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  const ChatSelector({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +89,11 @@ class ChatSelector extends StatelessWidget {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _createChat(context),
+        tooltip: 'New Chat',
+        child: const Icon(Icons.add),
       ),
     );
   }

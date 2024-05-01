@@ -86,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Widget page;
           switch (_page) {
             case 0:
-              page = ChatSelector();
+              page = ChatSelector(user: currentUser!);
               break;
             case 1:
               page = Settings();
@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 BottomNavigationBarItem(
                     icon: Icon(Icons.settings), label: "Settings"),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.account_circle_rounded), label: "account")
+                    icon: Icon(Icons.account_circle_rounded), label: "Account")
               ],
               onTap: (value) {
                 setPage(value);

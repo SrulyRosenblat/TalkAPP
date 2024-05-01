@@ -15,7 +15,7 @@ class Account extends StatelessWidget {
         children: [
           Text(user.displayName ?? "Anonymous"),
           Text(user.uid),
-          ElevatedButton(onPressed: auth.signOut, child: Text("log out"))
+          ElevatedButton(onPressed: auth.signOut, child: Text("Log Out"))
         ],
       ),
     );
