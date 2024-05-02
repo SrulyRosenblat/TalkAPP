@@ -41,6 +41,13 @@ Stream<Future<Map<String, dynamic>>> chatStream(int chatID) {
   });
 }
 
+Stream<Future<Map<String, dynamic>>> chatListStream(String userID) {
+  // subscribe to a list of the users chats
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
+    return await getChatList(userID);
+  });
+}
+
 Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
   // subscribe to a chats updates
   return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
@@ -62,6 +69,22 @@ Future<int> sendMessage(int chatID, String filePath) async {
 Future<Map<String, dynamic>> getChat(int chatID) async {
   // get the content of a specific chat
   var request = http.Request('GET', Uri.parse('$URL/getChat/$chatID/'));
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    Map<String, dynamic> res =
+        json.decode(await response.stream.bytesToString());
+    return res;
+  } else {
+    print(response.reasonPhrase);
+    throw Exception(response.reasonPhrase);
+  }
+}
+
+Future<Map<String, dynamic>> getChatList(String userID) async {
+  // get the content of a specific chat
+  var request = http.Request('GET', Uri.parse('$URL/getUserChats/$userID/'));
 
   http.StreamedResponse response = await request.send();
 
