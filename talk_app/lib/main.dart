@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:talk_app/firebase_options.dart';
 import 'package:talk_app/pages/ChatSelector.dart';
-import 'package:talk_app/pages/Settings.dart';
+import 'package:talk_app/pages/Favorites.dart';
 import 'package:talk_app/pages/Account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talk_app/pages/SignIn.dart';
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
               page = ChatSelector(user: currentUser!);
               break;
             case 1:
-              page = Settings();
+              page = Favorites();
               break;
             case 2:
               page = Account(auth: _auth, user: currentUser!);
@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
               items: [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.settings), label: "Settings"),
+                    icon: Icon(Icons.favorite), label: "Favorites"),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.account_circle_rounded), label: "Account")
               ],
