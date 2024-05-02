@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     iosClientId: '955906548828-5c4tork23b86ksl7hfbsg2o4oc62ptna.apps.googleusercontent.com',
     iosBundleId: 'com.example.talkApp',
   );
+
 }
