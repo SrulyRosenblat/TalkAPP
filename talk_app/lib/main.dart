@@ -1,11 +1,17 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:talk_app/firebase_options.dart';
 import 'package:talk_app/pages/ChatSelector.dart';
+import 'package:talk_app/pages/SettingModel/Theme.dart';
 import 'package:talk_app/pages/Settings.dart';
 import 'package:talk_app/pages/Account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talk_app/pages/SignIn.dart';
+
+import 'package:talk_app/pages/Customization.dart';
+import 'package:talk_app/pages/SettingModel/Theme.dart';
+import 'package:talk_app/pages/SettingModel/ThemeWidget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,19 +31,25 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'talk app'),
-    );
+  Widget build(BuildContext context)=>ChangeNotifierProvider(
+    create:(context)=>ThemeProvider(),
+    builder:(context,_){
+      final themeProvider = Provider.of<ThemeProvider>(context);
+      return MaterialApp(
+        title: 'Flutter Demo',
+        themeMode: themeProvider.themeMode,
+        theme: lightMode,
+        darkTheme: darkMode,
+        // theme: ThemeData(
+        //   // This is the theme of your application.
+        //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        //   useMaterial3: true,
+        // ),
+        home: const MyHomePage(title: 'talk app'),
+      );
+    },
+  );
   }
-}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -91,6 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
               page = Settings();
             case 2:
               page = Account(auth: _auth, user: currentUser!);
+            case 3:
+              page = Customization();
             default:
               page = Center(child: Text("error"));
           }
@@ -103,12 +117,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _page,
+              selectedItemColor: Colors.blue,
+              unselectedItemColor: Colors.grey,
               items: [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.settings), label: "Settings"),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.account_circle_rounded), label: "account")
+                    icon: Icon(Icons.account_circle_rounded), label: "account"),
+                BottomNavigationBarItem(icon: Icon(Icons.phone), label: "Customization")
               ],
               onTap: (value) {
                 setPage(value);
