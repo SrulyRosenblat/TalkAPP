@@ -36,14 +36,14 @@ Future<int> createChat(
 
 Stream<Future<Map<String, dynamic>>> chatStream(int chatID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(seconds: 2)).map((_) async {
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
     return await getChat(chatID);
   });
 }
 
 Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(seconds: 2)).map((_) async {
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
     return await getFavorites(userID);
   });
 }
@@ -61,7 +61,7 @@ Future<int> sendMessage(int chatID, String filePath) async {
 
 Future<Map<String, dynamic>> getChat(int chatID) async {
   // get the content of a specific chat
-  var request = http.Request('GET', Uri.parse('$URL/getChat/8/'));
+  var request = http.Request('GET', Uri.parse('$URL/getChat/$chatID/'));
 
   http.StreamedResponse response = await request.send();
 
@@ -76,8 +76,8 @@ Future<Map<String, dynamic>> getChat(int chatID) async {
 }
 
 Future<Map<String, dynamic>> getFavorites(String userID) async {
-  var request = http.Request(
-      'GET', Uri.parse('$URL/getUserFavorites/OyXZRwkLe1ebYkV2UFc2lyE2K8I3/'));
+  var request =
+      http.Request('GET', Uri.parse('$URL/getUserFavorites/$userID/'));
 
   http.StreamedResponse response = await request.send();
 
@@ -125,7 +125,6 @@ Future<String> uploadSound(String filePath) async {
     throw Exception(response.reasonPhrase);
   }
 }
-
 
 // void main(List<String> args) async {
 // use something like this to subscribe to a chat
