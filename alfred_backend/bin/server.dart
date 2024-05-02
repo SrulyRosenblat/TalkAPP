@@ -35,6 +35,12 @@ class Server {
       return await db.get_chat_messages(id);
     });
 
+    app.all('favorite/:messageID/', (HttpRequest req, HttpResponse res) async {
+      String id = req.params['messageID'];
+      await db.favorite_message(id);
+      return jsonEncode({"success": true});
+    });
+
     app.all('getUserChats/:userID/', (HttpRequest req, HttpResponse res) async {
       String id = req.params['userID'];
 //https://stackoverflow.com/questions/21813942/how-to-convert-datetime-object-to-json
