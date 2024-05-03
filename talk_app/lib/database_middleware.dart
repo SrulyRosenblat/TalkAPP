@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:collection/collection.dart';
 
 const URL = 'https://backend-for-talk-app-wq6p35r7jq-uc.a.run.app';
-Function unOrdDeepEq = const DeepCollectionEquality.unordered().equals;
 
 ///============================================================
 /// functions to use directly
@@ -36,31 +34,24 @@ Future<int> createChat(
   }
 }
 
-Stream<Map<String, dynamic>> chatStream(int chatID) {
+Stream<Future<Map<String, dynamic>>> chatStream(int chatID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(milliseconds: 500))
-      .asyncMap((_) => getChat(chatID))
-      .distinct((a, b) {
-    return unOrdDeepEq(a, b);
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
+    return await getChat(chatID);
   });
 }
 
-Stream<Map<String, dynamic>> chatListStream(String userID) {
+Stream<Future<Map<String, dynamic>>> chatListStream(String userID) {
   // subscribe to a list of the users chats
-  return Stream.periodic(const Duration(milliseconds: 500))
-      .asyncMap((_) => getChatList(userID))
-      .distinct((a, b) {
-    return unOrdDeepEq(a, b);
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
+    return await getChatList(userID);
   });
 }
 
-Stream<Map<String, dynamic>> favoriteStream(String userID) {
+Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
   // subscribe to a chats updates
-
-  return Stream.periodic(const Duration(milliseconds: 500))
-      .asyncMap((_) => getFavorites(userID))
-      .distinct((a, b) {
-    return unOrdDeepEq(a, b);
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
+    return await getFavorites(userID);
   });
 }
 
