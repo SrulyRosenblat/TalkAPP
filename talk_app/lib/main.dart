@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
               page = ChatSelector(user: currentUser!);
               break;
             case 1:
-              page = Favorites();
+              page = Favorites(user: currentUser!);
               break;
             case 2:
               page = Account(auth: _auth, user: currentUser!);
