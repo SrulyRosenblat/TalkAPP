@@ -50,7 +50,7 @@ class Server {
         chatNames.add(chat[4]);
       }
       return jsonEncode({
-        // 'chatIDs': chatIDs,
+        'chatIDs': chatIDs,
         'chatNames': chatNames.map((e) => e.trim()).toList(),
         'nativeLanguages': nativeLanguages.map((e) => e.trim()).toList(),
         'forignLanguages': forignLanguages.map((e) => e.trim()).toList(),
@@ -64,8 +64,10 @@ class Server {
       List<String?> translatedTexts = [];
       List<String> roles = [];
       List<String?> sounds = [];
+      List<int> ids = [];
 
       for (final m in messages) {
+        ids.add(m[0]);
         translatedTexts.add(m[3]?.trim());
         originalTexts.add(m[4].trim());
 
@@ -78,6 +80,7 @@ class Server {
         "translatedTexts": translatedTexts,
         "sounds": sounds,
         "roles": roles,
+        'messageIDs': ids
       };
     });
     app.post('createUser/', (req, res) async {
