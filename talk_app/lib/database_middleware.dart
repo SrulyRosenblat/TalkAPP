@@ -58,8 +58,8 @@ Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
 Future<int> sendMessage(int chatID, String filePath) async {
   // pass in a chatID and a file path to audio  to send a message in that chat
   String url = await uploadSound(filePath);
-  print(url);
-  return processMessage(chatID, url);
+  print("Audio URL Uploaded $url");
+  return processMessage(2, url);
 }
 
 ///============================================================
