@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:collection/collection.dart';
 
 const URL = 'https://backend-for-talk-app-wq6p35r7jq-uc.a.run.app';
-
 Function unOrdDeepEq = const DeepCollectionEquality.unordered().equals;
 
 ///============================================================
@@ -37,17 +36,28 @@ Future<int> createChat(
   }
 }
 
-Stream<Future<Map<String, dynamic>>> chatStream(int chatID) {
+Stream<Map<String, dynamic>> chatStream(int chatID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(seconds: 2)).map((_) async {
-    return await getChat(chatID);
+  return Stream.periodic(const Duration(milliseconds: 500))
+      .asyncMap((_) => getChat(chatID))
+      .distinct((a, b) {
+    return unOrdDeepEq(a, b);
+  });
+}
+
+Stream<Map<String, dynamic>> chatListStream(String userID) {
+  // subscribe to a list of the users chats
+  return Stream.periodic(const Duration(milliseconds: 500))
+      .asyncMap((_) => getChatList(userID))
+      .distinct((a, b) {
+    return unOrdDeepEq(a, b);
   });
 }
 
 Stream<Map<String, dynamic>> favoriteStream(String userID) {
   // subscribe to a chats updates
 
-  return Stream.periodic(const Duration(seconds: 1))
+  return Stream.periodic(const Duration(milliseconds: 500))
       .asyncMap((_) => getFavorites(userID))
       .distinct((a, b) {
     return unOrdDeepEq(a, b);
@@ -67,7 +77,23 @@ Future<int> sendMessage(int chatID, String filePath) async {
 
 Future<Map<String, dynamic>> getChat(int chatID) async {
   // get the content of a specific chat
-  var request = http.Request('GET', Uri.parse('$URL/getChat/8/'));
+  var request = http.Request('GET', Uri.parse('$URL/getChat/$chatID/'));
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    Map<String, dynamic> res =
+        json.decode(await response.stream.bytesToString());
+    return res;
+  } else {
+    print(response.reasonPhrase);
+    throw Exception(response.reasonPhrase);
+  }
+}
+
+Future<Map<String, dynamic>> getChatList(String userID) async {
+  // get the content of a specific chat
+  var request = http.Request('GET', Uri.parse('$URL/getUserChats/$userID/'));
 
   http.StreamedResponse response = await request.send();
 
@@ -82,8 +108,8 @@ Future<Map<String, dynamic>> getChat(int chatID) async {
 }
 
 Future<Map<String, dynamic>> getFavorites(String userID) async {
-  var request = http.Request(
-      'GET', Uri.parse('$URL/getUserFavorites/OyXZRwkLe1ebYkV2UFc2lyE2K8I3/'));
+  var request =
+      http.Request('GET', Uri.parse('$URL/getUserFavorites/$userID/'));
 
   http.StreamedResponse response = await request.send();
 
@@ -132,7 +158,6 @@ Future<String> uploadSound(String filePath) async {
   }
 }
 
-
 // void main(List<String> args) async {
 // use something like this to subscribe to a chat
 
@@ -154,3 +179,4 @@ Future<String> uploadSound(String filePath) async {
 // create a new chat
 // createChat('OyXZRwkLe1ebYkV2UFc2lyE2K8I3', 'foreignLanguage', 'chatName');
 // }
+
