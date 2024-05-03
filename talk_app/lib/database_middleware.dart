@@ -1,8 +1,11 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:collection/collection.dart';
 
 const URL = 'https://backend-for-talk-app-wq6p35r7jq-uc.a.run.app';
+
+Function unOrdDeepEq = const DeepCollectionEquality.unordered().equals;
 
 ///============================================================
 /// functions to use directly
@@ -41,10 +44,13 @@ Stream<Future<Map<String, dynamic>>> chatStream(int chatID) {
   });
 }
 
-Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
+Stream<Map<String, dynamic>> favoriteStream(String userID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(seconds: 2)).map((_) async {
-    return await getFavorites(userID);
+
+  return Stream.periodic(const Duration(seconds: 1))
+      .asyncMap((_) => getFavorites(userID))
+      .distinct((a, b) {
+    return unOrdDeepEq(a, b);
   });
 }
 

@@ -15,12 +15,12 @@ class Favorites extends StatefulWidget {
 }
 
 class FavoritesState extends State<Favorites> {
-  late Future<Map<String, dynamic>> _favoritesFuture;
+  late Stream<Map<String, dynamic>> _favoritesStream;
 
   @override
   void initState() {
     super.initState();
-    _favoritesFuture = getFavorites(widget.user.uid);
+    _favoritesStream = favoriteStream(widget.user.uid);
   }
 
   @override
@@ -30,8 +30,8 @@ class FavoritesState extends State<Favorites> {
         title: const Text('Favorites'),
         centerTitle: true,
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _favoritesFuture,
+      body: StreamBuilder<Map<String, dynamic>>(
+        stream: _favoritesStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
