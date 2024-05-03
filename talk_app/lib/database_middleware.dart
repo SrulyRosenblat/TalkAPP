@@ -57,9 +57,14 @@ Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
 
 Future<int> sendMessage(int chatID, String filePath) async {
   // pass in a chatID and a file path to audio  to send a message in that chat
-  String url = await uploadSound(filePath);
-  print("Audio URL Uploaded $url");
-  return processMessage(2, url);
+  try {
+    String url = await uploadSound(filePath);
+    print("Audio URL Uploaded: $url");
+    return await processMessage(2, url);
+  } catch (e) {
+    print("Failed to send message due to error: $e");
+    throw Exception('Failed to send message due to error: $e');
+  }
 }
 
 ///============================================================
@@ -135,17 +140,14 @@ Future<String> uploadSound(String filePath) async {
   // upload the sound to a cloud bucket
   var url = Uri.parse('$URL/upload');
   var request = http.MultipartRequest('POST', url);
-
   var multipartFile = await http.MultipartFile.fromPath('file', filePath);
   request.files.add(multipartFile);
-
   var response = await request.send();
 
   if (response.statusCode == 200) {
-    var responseBody = await response.stream.bytesToString();
-    return responseBody;
+    return await response.stream.bytesToString();
   } else {
-    throw Exception(response.reasonPhrase);
+    throw Exception('Failed to upload file: ${response.reasonPhrase}');
   }
 }
 
