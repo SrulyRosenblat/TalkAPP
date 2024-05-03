@@ -12,6 +12,7 @@ dependencies:
   gcloud: ^0.8.12
   googleapis_auth: ^1.6.0
   uuid: ^4.4.0
+  audioplayers: ^6.0.0
 
 
 
