@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../database_middleware.dart';
+
 
 class Chat extends StatefulWidget {
   final String chatId;
@@ -17,24 +22,49 @@ class _ChatState extends State<Chat> {
   late stt.SpeechToText _speech;
   late FlutterTts flutterTts;
   ValueNotifier<bool> isListening = ValueNotifier(false);
+  late StreamSubscription<Future<Map<String, dynamic>>> chatSubscription; 
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
     flutterTts = FlutterTts();
+    initializeChat();
+  }
 
-    messages = [      {
-        'textNative': 'Hola, qué tal',
-        'textForeign': 'Hey, how are you',
-        'isAI': false,
+  void initializeChat() {
+    int chatIdInt = int.parse(widget.chatId);
+    chatSubscription = chatStream(2).listen(
+      (chatDataFuture) {
+        chatDataFuture.then((chatData) {
+          print("Received chat data: $chatData");
+          setState(() {
+            if (chatData['originalTexts'] != null && chatData['originalTexts'].isNotEmpty) {
+              messages = List.generate(chatData['originalTexts'].length, (index) {
+                return {
+                  'textNative': chatData['originalTexts'][index],
+                  'textForeign': chatData['translatedTexts'][index],
+                  'soundUrl': chatData['sounds'][index],
+                  'isAI': chatData['roles'][index] == 'AI',
+                  'isFavorited': chatData['favorited'][index]
+                };
+              });
+            } else {
+              messages = [];
+            }
+            print("CURRENT SMS retrieval: $messages");
+          });
+        }).catchError((error) {
+          print("Error retrieving messages: ${error.toString()}");
+        });
       },
-      {
-        'textNative': 'Estoy muy bien, ¿y tú?',
-        'textForeign': 'I am doing great, you?',
-        'isAI': true,
-      },
-      ];
+    );
+  }
+
+  @override
+  void dispose() {
+    chatSubscription.cancel();
+    super.dispose();
   }
 
   void _speak(String text) async {
@@ -59,7 +89,9 @@ class _ChatState extends State<Chat> {
                   messages.add({
                     'textNative': val.recognizedWords,
                     'textForeign': 'Translation pending...',
+                    'soundUrl': "",
                     'isAI': false,
+                    'isFavorited': ""
                   });
                   print('Added message: ${val.recognizedWords}');
                 });
