@@ -3,6 +3,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record_mp3/record_mp3.dart';
 import '../database_middleware.dart'; 
+import 'dart:async'; 
 
 class Chat extends StatefulWidget {
   final String chatId;
@@ -16,11 +17,32 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   bool _isRecording = false;
   String? _recordFilePath;
+  late StreamSubscription<Future<Map<String, dynamic>>> chatSubscription; 
 
   @override
   void initState() {
     super.initState();
     requestPermission();
+    initializeChat();
+  }
+
+  void initializeChat() {
+    int chatIdInt = int.parse(widget.chatId);
+    chatSubscription = chatStream(3).listen(
+      (chatDataFuture) {
+        chatDataFuture.then((chatData) {
+          print("Received chat data: $chatData");
+        }).catchError((error) {
+          print("Error retrieving messages: ${error.toString()}");
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    chatSubscription.cancel();
+    super.dispose();
   }
 
   void requestPermission() async {
@@ -45,7 +67,7 @@ class _ChatState extends State<Chat> {
   void stopRecord() async {
     bool result = RecordMp3.instance.stop();
     if (result && _recordFilePath != null) {
-      await Future.delayed(Duration(milliseconds: 500));  // Allow some time for the file to finalize
+      await Future.delayed(Duration(milliseconds: 500)); 
       _sendAudioFile(_recordFilePath!);
       setState(() {
         _isRecording = false;
