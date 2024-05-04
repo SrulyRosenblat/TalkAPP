@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:collection/collection.dart';
 
 const URL = 'https://backend-for-talk-app-wq6p35r7jq-uc.a.run.app';
+Function unOrdDeepEq = const DeepCollectionEquality.unordered().equals;
 
 ///============================================================
 /// functions to use directly
@@ -34,37 +36,39 @@ Future<int> createChat(
   }
 }
 
-Stream<Future<Map<String, dynamic>>> chatStream(int chatID) {
+Stream<Map<String, dynamic>> chatStream(int chatID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
-    return await getChat(chatID);
+  return Stream.periodic(const Duration(milliseconds: 500))
+      .asyncMap((_) => getChat(4))
+      .distinct((a, b) {
+    return unOrdDeepEq(a, b);
   });
 }
 
-Stream<Future<Map<String, dynamic>>> chatListStream(String userID) {
+Stream<Map<String, dynamic>> chatListStream(String userID) {
   // subscribe to a list of the users chats
-  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
-    return await getChatList(userID);
+  return Stream.periodic(const Duration(milliseconds: 500))
+      .asyncMap((_) => getChatList(userID))
+      .distinct((a, b) {
+    return unOrdDeepEq(a, b);
   });
 }
 
-Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
+Stream<Map<String, dynamic>> favoriteStream(String userID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
-    return await getFavorites(userID);
+
+  return Stream.periodic(const Duration(milliseconds: 500))
+      .asyncMap((_) => getFavorites(userID))
+      .distinct((a, b) {
+    return unOrdDeepEq(a, b);
   });
 }
 
 Future<int> sendMessage(int chatID, String filePath) async {
   // pass in a chatID and a file path to audio  to send a message in that chat
-  try {
-    String url = await uploadSound(filePath);
-    print("Audio URL Uploaded: $url");
-    return await processMessage(3, url);
-  } catch (e) {
-    print("Failed to send message due to error: $e");
-    throw Exception('Failed to send message due to error: $e');
-  }
+  String url = await uploadSound(filePath);
+  print("Audio URL Uploaded: $url");
+  return processMessage(4, url);
 }
 
 ///============================================================
@@ -140,14 +144,17 @@ Future<String> uploadSound(String filePath) async {
   // upload the sound to a cloud bucket
   var url = Uri.parse('$URL/upload');
   var request = http.MultipartRequest('POST', url);
+
   var multipartFile = await http.MultipartFile.fromPath('file', filePath);
   request.files.add(multipartFile);
+
   var response = await request.send();
 
   if (response.statusCode == 200) {
-    return await response.stream.bytesToString();
+    var responseBody = await response.stream.bytesToString();
+    return responseBody;
   } else {
-    throw Exception('Failed to upload file: ${response.reasonPhrase}');
+    throw Exception(response.reasonPhrase);
   }
 }
 

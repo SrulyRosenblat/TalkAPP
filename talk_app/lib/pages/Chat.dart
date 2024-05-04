@@ -17,7 +17,8 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   bool _isRecording = false;
   String? _recordFilePath;
-  late StreamSubscription<Future<Map<String, dynamic>>> chatSubscription; 
+  late StreamSubscription<Map<String, dynamic>> chatSubscription;
+  List<Map<String, dynamic>> messages = [];
 
   @override
   void initState() {
@@ -28,14 +29,25 @@ class _ChatState extends State<Chat> {
 
   void initializeChat() {
     int chatIdInt = int.parse(widget.chatId);
-    chatSubscription = chatStream(3).listen(
-      (chatDataFuture) {
-        chatDataFuture.then((chatData) {
-          print("Received chat data: $chatData");
-        }).catchError((error) {
-          print("Error retrieving messages: ${error.toString()}");
+    chatSubscription = chatStream(4).listen(
+      (chatData) {
+        setState(() {
+          messages = List.generate(chatData['originalTexts'].length, (index) {
+            return {
+              'textNative': chatData['originalTexts'][index],
+              'textForeign': chatData['translatedTexts'][index],
+              'soundUrl': chatData['sounds'][index],
+              'isAI': chatData['roles'][index] == 'assistant',
+              'isFavorited': chatData['favorited'][index],
+            };
+          });
         });
+        print("Received chat data: $chatData");
+        print("Messages look like: $messages");
       },
+      onError: (error) {
+        print("Error retrieving messages: $error");
+      }
     );
   }
 
@@ -92,12 +104,18 @@ class _ChatState extends State<Chat> {
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_isRecording ? "Recording..." : "Tap the mic to start recording"),
-            FloatingActionButton(
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              reverse: true,
+              itemCount: messages.length,
+              itemBuilder: (context, index) => buildMessage(index),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: FloatingActionButton(
               onPressed: () {
                 if (_isRecording) {
                   stopRecord();
@@ -108,10 +126,28 @@ class _ChatState extends State<Chat> {
               child: Icon(_isRecording ? Icons.stop : Icons.mic),
               backgroundColor: _isRecording ? Colors.red : Colors.blue,
             ),
-            if (_recordFilePath != null) Text('Recorded file: $_recordFilePath')
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget buildMessage(int index) {
+    final message = messages[messages.length - 1 - index];
+    return ListTile(
+      leading: message['isAI'] ? null : IconButton(
+        icon: Icon(Icons.play_arrow),
+        onPressed: () {}, // Implement playing the message['soundUrl']
+      ),
+      trailing: message['isAI'] ? IconButton(
+        icon: Icon(Icons.play_arrow),
+        onPressed: () {}, // Implement playing the message['soundUrl']
+      ) : null,
+      title: Text(
+        message['textNative'],
+        style: TextStyle(color: message['isAI'] ? Colors.blue : Colors.black),
+      ),
+      subtitle: Text(message['textForeign']),
     );
   }
 }
