@@ -39,7 +39,7 @@ Future<int> createChat(
 Stream<Map<String, dynamic>> chatStream(int chatID) {
   // subscribe to a chats updates
   return Stream.periodic(const Duration(milliseconds: 500))
-      .asyncMap((_) => getChat(4))
+      .asyncMap((_) => getChat(chatID))
       .distinct((a, b) {
     return unOrdDeepEq(a, b);
   });
@@ -68,7 +68,7 @@ Future<int> sendMessage(int chatID, String filePath) async {
   // pass in a chatID and a file path to audio  to send a message in that chat
   String url = await uploadSound(filePath);
   print("Audio URL Uploaded: $url");
-  return processMessage(4, url);
+  return processMessage(chatID, url);
 }
 
 ///============================================================

@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record_mp3/record_mp3.dart';
 import '../database_middleware.dart'; 
 import 'dart:async'; 
+import 'package:audioplayers/audioplayers.dart';
 
 class Chat extends StatefulWidget {
   final String chatId;
@@ -19,6 +20,7 @@ class _ChatState extends State<Chat> {
   String? _recordFilePath;
   late StreamSubscription<Map<String, dynamic>> chatSubscription;
   List<Map<String, dynamic>> messages = [];
+  AudioPlayer audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -29,6 +31,7 @@ class _ChatState extends State<Chat> {
 
   void initializeChat() {
     int chatIdInt = int.parse(widget.chatId);
+    // Replace 4 with chatIdInt
     chatSubscription = chatStream(4).listen(
       (chatData) {
         setState(() {
@@ -54,6 +57,7 @@ class _ChatState extends State<Chat> {
   @override
   void dispose() {
     chatSubscription.cancel();
+    audioPlayer.dispose();
     super.dispose();
   }
 
@@ -89,11 +93,16 @@ class _ChatState extends State<Chat> {
 
   Future<void> _sendAudioFile(String filePath) async {
     try {
-      int messageId = await sendMessage(int.parse(widget.chatId), filePath);
+      // Replace 4 with: int.parse(widget.chatId)
+      int messageId = await sendMessage(4, filePath);
       print("Message sent with ID: $messageId");
     } catch (e) {
       print("Failed to send message: $e");
     }
+  }
+
+  void playSound(String url) async {
+    await audioPlayer.play(UrlSource(url));
   }
 
   @override
@@ -134,20 +143,57 @@ class _ChatState extends State<Chat> {
 
   Widget buildMessage(int index) {
     final message = messages[messages.length - 1 - index];
-    return ListTile(
-      leading: message['isAI'] ? null : IconButton(
-        icon: Icon(Icons.play_arrow),
-        onPressed: () {}, // Implement playing the message['soundUrl']
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: message['isAI'] ? MainAxisAlignment.start : MainAxisAlignment.end,
+        children: [
+          if (!message['isAI']) 
+            IconButton(
+              icon: Icon(Icons.volume_up),
+              color: Colors.black,
+              onPressed: () => playSound(message['soundUrl']),
+            ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            decoration: BoxDecoration(
+              color: message['isAI'] ? Color(0xFF8A8AFF) : Color(0xFF7AA7FF),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 3,
+                  spreadRadius: 1,
+                  color: Colors.black.withOpacity(0.1),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message['textNative'],
+                  style: TextStyle(fontSize: 16.0, color: Colors.white),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  message['textForeign'],
+                  style: TextStyle(fontSize: 14.0, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+          if (message['isAI']) 
+            IconButton(
+              icon: Icon(Icons.volume_up),
+              color: Colors.black,
+              onPressed: () => playSound(message['soundUrl']),
+            ),
+        ],
       ),
-      trailing: message['isAI'] ? IconButton(
-        icon: Icon(Icons.play_arrow),
-        onPressed: () {}, // Implement playing the message['soundUrl']
-      ) : null,
-      title: Text(
-        message['textNative'],
-        style: TextStyle(color: message['isAI'] ? Colors.blue : Colors.black),
-      ),
-      subtitle: Text(message['textForeign']),
     );
   }
+
 }
