@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record_mp3/record_mp3.dart';
-import '../database_middleware.dart'; 
-import 'dart:async'; 
+import '../database_middleware.dart';
+import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 
 class Chat extends StatefulWidget {
-  final String chatId;
+  final int chatId;
 
   const Chat({Key? key, required this.chatId}) : super(key: key);
 
@@ -30,28 +30,25 @@ class _ChatState extends State<Chat> {
   }
 
   void initializeChat() {
-    int chatIdInt = int.parse(widget.chatId);
+    int chatIdInt = widget.chatId;
     // Replace 4 with chatIdInt
-    chatSubscription = chatStream(4).listen(
-      (chatData) {
-        setState(() {
-          messages = List.generate(chatData['originalTexts'].length, (index) {
-            return {
-              'textNative': chatData['originalTexts'][index],
-              'textForeign': chatData['translatedTexts'][index],
-              'soundUrl': chatData['sounds'][index],
-              'isAI': chatData['roles'][index] == 'assistant',
-              'isFavorited': chatData['favorited'][index],
-            };
-          });
+    chatSubscription = chatStream(chatIdInt).listen((chatData) {
+      setState(() {
+        messages = List.generate(chatData['originalTexts'].length, (index) {
+          return {
+            'textNative': chatData['originalTexts'][index],
+            'textForeign': chatData['translatedTexts'][index],
+            'soundUrl': chatData['sounds'][index],
+            'isAI': chatData['roles'][index] == 'assistant',
+            'isFavorited': chatData['favorited'][index],
+          };
         });
-        print("Received chat data: $chatData");
-        print("Messages look like: $messages");
-      },
-      onError: (error) {
-        print("Error retrieving messages: $error");
-      }
-    );
+      });
+      print("Received chat data: $chatData");
+      print("Messages look like: $messages");
+    }, onError: (error) {
+      print("Error retrieving messages: $error");
+    });
   }
 
   @override
@@ -70,7 +67,8 @@ class _ChatState extends State<Chat> {
 
   void startRecord() async {
     final directory = await getApplicationDocumentsDirectory();
-    String filePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.mp3';
+    String filePath =
+        '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.mp3';
     RecordMp3.instance.start(filePath, (type) {
       setState(() {});
     });
@@ -83,7 +81,7 @@ class _ChatState extends State<Chat> {
   void stopRecord() async {
     bool result = RecordMp3.instance.stop();
     if (result && _recordFilePath != null) {
-      await Future.delayed(Duration(milliseconds: 500)); 
+      await Future.delayed(Duration(milliseconds: 500));
       _sendAudioFile(_recordFilePath!);
       setState(() {
         _isRecording = false;
@@ -94,7 +92,7 @@ class _ChatState extends State<Chat> {
   Future<void> _sendAudioFile(String filePath) async {
     try {
       // Replace 4 with: int.parse(widget.chatId)
-      int messageId = await sendMessage(4, filePath);
+      int messageId = await sendMessage(widget.chatId, filePath);
       print("Message sent with ID: $messageId");
     } catch (e) {
       print("Failed to send message: $e");
@@ -146,9 +144,10 @@ class _ChatState extends State<Chat> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
-        mainAxisAlignment: message['isAI'] ? MainAxisAlignment.start : MainAxisAlignment.end,
+        mainAxisAlignment:
+            message['isAI'] ? MainAxisAlignment.start : MainAxisAlignment.end,
         children: [
-          if (!message['isAI']) 
+          if (!message['isAI'])
             IconButton(
               icon: Icon(Icons.volume_up),
               color: Colors.black,
@@ -185,7 +184,7 @@ class _ChatState extends State<Chat> {
               ],
             ),
           ),
-          if (message['isAI']) 
+          if (message['isAI'])
             IconButton(
               icon: Icon(Icons.volume_up),
               color: Colors.black,
@@ -195,5 +194,4 @@ class _ChatState extends State<Chat> {
       ),
     );
   }
-
 }

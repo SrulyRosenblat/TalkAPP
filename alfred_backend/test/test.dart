@@ -1,15 +1,13 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:collection/collection.dart';
 
 const URL = 'https://backend-for-talk-app-wq6p35r7jq-uc.a.run.app';
-Function unOrdDeepEq = const DeepCollectionEquality.unordered().equals;
 
 ///============================================================
 /// functions to use directly
 ///============================================================
-createChat(
+Future<int> createChat(
     // create a new chat for a certain user
     String userID,
     String foreignLanguage,
@@ -28,44 +26,39 @@ createChat(
 
   if (response.statusCode == 200) {
     print(await response.stream.bytesToString());
+    int chatID = (await response.stream.bytesToString()) as int;
+    return chatID;
   } else {
     print(response.reasonPhrase);
     throw Exception(response.reasonPhrase);
   }
 }
 
-Stream<Map<String, dynamic>> chatStream(int chatID) {
+Stream<Future<Map<String, dynamic>>> chatStream(int chatID) {
   // subscribe to a chats updates
-  return Stream.periodic(const Duration(milliseconds: 500))
-      .asyncMap((_) => getChat(chatID))
-      .distinct((a, b) {
-    return unOrdDeepEq(a, b);
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
+    return await getChat(chatID);
   });
 }
 
-Stream<Map<String, dynamic>> chatListStream(String userID) {
+Stream<Future<Map<String, dynamic>>> chatListStream(String userID) {
   // subscribe to a list of the users chats
-  return Stream.periodic(const Duration(milliseconds: 500))
-      .asyncMap((_) => getChatList(userID))
-      .distinct((a, b) {
-    return unOrdDeepEq(a, b);
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
+    return await getChatList(userID);
   });
 }
 
-Stream<Map<String, dynamic>> favoriteStream(String userID) {
+Stream<Future<Map<String, dynamic>>> favoriteStream(String userID) {
   // subscribe to a chats updates
-
-  return Stream.periodic(const Duration(milliseconds: 500))
-      .asyncMap((_) => getFavorites(userID))
-      .distinct((a, b) {
-    return unOrdDeepEq(a, b);
+  return Stream.periodic(const Duration(milliseconds: 500)).map((_) async {
+    return await getFavorites(userID);
   });
 }
 
 Future<int> sendMessage(int chatID, String filePath) async {
   // pass in a chatID and a file path to audio  to send a message in that chat
   String url = await uploadSound(filePath);
-  print("Audio URL Uploaded: $url");
+  print(url);
   return processMessage(chatID, url);
 }
 
@@ -156,25 +149,13 @@ Future<String> uploadSound(String filePath) async {
   }
 }
 
-// void main(List<String> args) async {
+void main(List<String> args) async {
 // use something like this to subscribe to a chat
 
-// chatStream(6).forEach((chat) async {
-//   Map<String, dynamic> c = await chat;
-//   print(c);
-// });
-// // use something like this to subscribe to the users favorites
-
-// favoriteStream('sadfsasdfgvd').forEach((userFavorites) async {
-//   Map<String, dynamic> favorites = await userFavorites;
-//   print(favorites);
-// });
-
-// use this function to send the message pass in a path to temporary file
-//if set up correctly should send automaticly refresh chat if subscribed to stream.
-// int messageID = await sendMessage(2, './testing.mp3');
-
-// create a new chat
-// createChat('OyXZRwkLe1ebYkV2UFc2lyE2K8I3', 'foreignLanguage', 'chatName');
-// }
-
+  // createChat('kb53u81EFXZoiMBvnxlDKlasBk12', 'foreignLanguage', '34233');
+  chatStream(22).forEach((chat) async {
+    Map<String, dynamic> c = await chat;
+    print(c);
+  });
+// use something like this to subscribe to the users favorites
+}
