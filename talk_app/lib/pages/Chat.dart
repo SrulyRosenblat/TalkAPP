@@ -1,106 +1,143 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record_mp3/record_mp3.dart';
+import '../database_middleware.dart'; 
+import 'dart:async'; 
+import 'package:audioplayers/audioplayers.dart';
 
 class Chat extends StatefulWidget {
   final String chatId;
 
-  const Chat({super.key, required this.chatId});
+  const Chat({Key? key, required this.chatId}) : super(key: key);
 
   @override
   _ChatState createState() => _ChatState();
 }
 
 class _ChatState extends State<Chat> {
-  late List<Map<String, dynamic>> messages;
-  late stt.SpeechToText _speech;
-  late FlutterTts flutterTts;
-  ValueNotifier<bool> isListening = ValueNotifier(false);
+  bool _isRecording = false;
+  String? _recordFilePath;
+  late StreamSubscription<Map<String, dynamic>> chatSubscription;
+  List<Map<String, dynamic>> messages = [];
+  AudioPlayer audioPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
-    flutterTts = FlutterTts();
-
-    messages = [      {
-        'textNative': 'Hola, qué tal',
-        'textForeign': 'Hey, how are you',
-        'isAI': false,
-      },
-      {
-        'textNative': 'Estoy muy bien, ¿y tú?',
-        'textForeign': 'I am doing great, you?',
-        'isAI': true,
-      },
-      ];
+    requestPermission();
+    initializeChat();
   }
 
-  void _speak(String text) async {
-    await flutterTts.speak(text);
-  }
-
-  void _listen() async {
-    var microphoneStatus = await Permission.microphone.status;
-    if (!microphoneStatus.isGranted) {
-      await Permission.microphone.request();
-    }
-
-    if (await Permission.microphone.isGranted) {
-      if (!isListening.value) {
-        bool available = await _speech.initialize();
-        if (available) {
-          isListening.value = true;
-          _speech.listen(
-            onResult: (val) {
-              if (val.finalResult) { 
-                setState(() {
-                  messages.add({
-                    'textNative': val.recognizedWords,
-                    'textForeign': 'Translation pending...',
-                    'isAI': false,
-                  });
-                  print('Added message: ${val.recognizedWords}');
-                });
-              }
-            },
-          );
-        }
-      } else {
-        isListening.value = false;
-        _speech.stop();
+  void initializeChat() {
+    int chatIdInt = int.parse(widget.chatId);
+    // Replace 4 with chatIdInt
+    chatSubscription = chatStream(4).listen(
+      (chatData) {
+        setState(() {
+          messages = List.generate(chatData['originalTexts'].length, (index) {
+            return {
+              'textNative': chatData['originalTexts'][index],
+              'textForeign': chatData['translatedTexts'][index],
+              'soundUrl': chatData['sounds'][index],
+              'isAI': chatData['roles'][index] == 'assistant',
+              'isFavorited': chatData['favorited'][index],
+            };
+          });
+        });
+        print("Received chat data: $chatData");
+        print("Messages look like: $messages");
+      },
+      onError: (error) {
+        print("Error retrieving messages: $error");
       }
-    } else {
-      print("MIC ACCESS NOT GRANTED ;(");
+    );
+  }
+
+  @override
+  void dispose() {
+    chatSubscription.cancel();
+    audioPlayer.dispose();
+    super.dispose();
+  }
+
+  void requestPermission() async {
+    var status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw Exception('Microphone permission not granted');
     }
+  }
+
+  void startRecord() async {
+    final directory = await getApplicationDocumentsDirectory();
+    String filePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.mp3';
+    RecordMp3.instance.start(filePath, (type) {
+      setState(() {});
+    });
+    setState(() {
+      _recordFilePath = filePath;
+      _isRecording = true;
+    });
+  }
+
+  void stopRecord() async {
+    bool result = RecordMp3.instance.stop();
+    if (result && _recordFilePath != null) {
+      await Future.delayed(Duration(milliseconds: 500)); 
+      _sendAudioFile(_recordFilePath!);
+      setState(() {
+        _isRecording = false;
+      });
+    }
+  }
+
+  Future<void> _sendAudioFile(String filePath) async {
+    try {
+      // Replace 4 with: int.parse(widget.chatId)
+      int messageId = await sendMessage(4, filePath);
+      print("Message sent with ID: $messageId");
+    } catch (e) {
+      print("Failed to send message: $e");
+    }
+  }
+
+  void playSound(String url) async {
+    await audioPlayer.play(UrlSource(url));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(
-        'Chat',
-        style: TextStyle(color: Colors.white)),
+      appBar: AppBar(
+        title: const Text('Chat'),
         centerTitle: true,
-        backgroundColor: const Color(0xFF0031AF),
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.blue,
       ),
       body: Column(
         children: [
-          Expanded(child: buildMessages()),
-          const Divider(height: 1),
-          buildMicrophoneInputArea(), // Now using ValueListenableBuilder
+          Expanded(
+            child: ListView.builder(
+              reverse: true,
+              itemCount: messages.length,
+              itemBuilder: (context, index) => buildMessage(index),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: FloatingActionButton(
+              onPressed: () {
+                if (_isRecording) {
+                  stopRecord();
+                } else {
+                  startRecord();
+                }
+              },
+              child: Icon(_isRecording ? Icons.stop : Icons.mic),
+              backgroundColor: _isRecording ? Colors.red : Colors.blue,
+            ),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget buildMessages() {
-    return ListView.builder(
-      reverse: true,
-      itemCount: messages.length,
-      itemBuilder: (context, index) => buildMessage(index),
     );
   }
 
@@ -115,7 +152,7 @@ class _ChatState extends State<Chat> {
             IconButton(
               icon: Icon(Icons.volume_up),
               color: Colors.black,
-              onPressed: () => _speak(message['textNative']),
+              onPressed: () => playSound(message['soundUrl']),
             ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -152,28 +189,11 @@ class _ChatState extends State<Chat> {
             IconButton(
               icon: Icon(Icons.volume_up),
               color: Colors.black,
-              onPressed: () => _speak(message['textNative']),
+              onPressed: () => playSound(message['soundUrl']),
             ),
         ],
       ),
     );
   }
 
-  Widget buildMicrophoneInputArea() {
-    return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: ValueListenableBuilder<bool>(
-          valueListenable: isListening,
-          builder: (_, isListening, __) {
-            return FloatingActionButton(
-              onPressed: _listen,
-              backgroundColor: isListening ? Colors.red : Colors.blue,
-              child: Icon(isListening ? Icons.mic_off : Icons.mic),
-            );
-          },
-        ),
-      ),
-    );
-  }
 }
