@@ -127,13 +127,13 @@ class Server {
 
       if (audio == null) throw Exception('expected a "audio_url" in body');
 
-      String messegeText = await openai.speech_to_text(audio);
+      String messageText = await openai.speech_to_text(audio);
 
       Map<String, List<dynamic>> chat = await db.get_chat_messages(chatID);
       List texts = chat['originalTexts']!;
       List roles = chat['roles']!;
       String conversationString =
-          build_Conversation_String(texts, roles, messegeText);
+          build_Conversation_String(texts, roles, messageText);
 
       //  translate text
       String translatedText =
@@ -154,12 +154,12 @@ class Server {
       // print('conversation string');
       // print(conversationString);
 
-      await db.add_message(chatID, userID, messegeText, translatedText,
+      await db.add_message(chatID, userID, translatedText, messageText,
           sound: audio, ai: false);
 
       List messages_in_correct_format = convert_to_openai_format(texts, roles);
       String response =
-          await openai.chat(messages_in_correct_format, foreign, messegeText);
+          await openai.chat(messages_in_correct_format, foreign, messageText);
       String translatedResponse = await openai.translate(response, native);
       String responseAudio = await openai.text_to_speech(text: response);
       return db.add_message(chatID, userID, translatedResponse, response,
