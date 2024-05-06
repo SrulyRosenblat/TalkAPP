@@ -18,6 +18,11 @@ class Server {
 
     app.all('/', (req, res) => 'congrats it works 🎉🎉🎉');
 
+    app.all('/favorite/:id/', (HttpRequest req, HttpResponse res) async {
+      String messageID = req.params['id'];
+      return db.toggle_favorite_message(messageID);
+    });
+
     app.post('/upload', (req, res) async {
       final body = await req.bodyAsJsonMap;
       final file = (body['file'] as HttpBodyFileUpload);

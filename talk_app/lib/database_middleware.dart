@@ -9,6 +9,20 @@ Function unOrdDeepEq = const DeepCollectionEquality.unordered().equals;
 ///============================================================
 /// functions to use directly
 ///============================================================
+
+favorite(int messageID) async {
+  var request = http.Request('GET', Uri.parse('$URL/favorite/$messageID/'));
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    return;
+  } else {
+    print(response.reasonPhrase);
+    throw Exception(response.reasonPhrase);
+  }
+}
+
 createChat(
     // create a new chat for a certain user
     String userID,

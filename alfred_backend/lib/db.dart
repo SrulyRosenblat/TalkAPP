@@ -70,6 +70,7 @@ class DB {
       SELECT * FROM AudioMessage Where ChatID ='$chatID'
       ORDER BY CreatedAt ASC;
       ''');
+    List<int> ids = [];
     List<String> originalTexts = [];
     List<String?> translatedTexts = [];
     List<String> roles = [];
@@ -77,6 +78,7 @@ class DB {
     List<bool> favorites = [];
 
     for (final m in messages) {
+      ids.add(m[0]);
       translatedTexts.add(m[3]?.trim());
       originalTexts.add(m[4].trim());
 
@@ -90,7 +92,8 @@ class DB {
       "translatedTexts": translatedTexts,
       "sounds": sounds,
       "roles": roles,
-      "favorited": favorites
+      "favorited": favorites,
+      "messageIDs": ids
     };
   }
 
@@ -131,9 +134,9 @@ class DB {
     return result.firstOrNull;
   }
 
-  favorite_message(messageID) async {
+  toggle_favorite_message(messageID) async {
     return await execute(
-        'UPDATE AudioMessage SET Favorite = TRUE WHERE MessageID = $messageID;');
+        'UPDATE AudioMessage SET Favorite = NOT Favorite WHERE MessageID = $messageID;');
   }
 
   bool isConnected() {
