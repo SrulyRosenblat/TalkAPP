@@ -47,11 +47,18 @@ class FavoritesState extends State<Favorites> {
             List<dynamic> originalTexts = snapshot.data?['originalTexts'] ?? [];
             List<dynamic> sounds = snapshot.data?['sounds'] ?? [];
             List<dynamic> roles = snapshot.data?['roles'] ?? [];
+            List<dynamic> ids = snapshot.data?['messageIDs'] ?? [];
             return ListView.builder(
               itemCount: translatedTexts.length,
               itemBuilder: (context, index) {
-                return buildMessage(translatedTexts[index],
-                    originalTexts[index], sounds[index], roles[index], context);
+                return buildMessage(
+                    translatedTexts[index],
+                    originalTexts[index],
+                    sounds[index],
+                    roles[index],
+                    true,
+                    ids[index] as int,
+                    context);
               },
             );
           }
