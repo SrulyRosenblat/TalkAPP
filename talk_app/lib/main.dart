@@ -103,8 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
               page = Settings();
             case 2:
               page = Account(auth: _auth, user: currentUser!);
-            case 3:
-              page = Customization();
+            // case 3:
+            //   page = Customization();
             default:
               page = Center(child: Text("error"));
           }
@@ -117,15 +117,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _page,
-              selectedItemColor: Colors.blue,
-              unselectedItemColor: Colors.grey,
+              // selectedItemColor: Colors.blue,
+              // unselectedItemColor: Colors.grey,
               items: [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.settings), label: "Settings"),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.account_circle_rounded), label: "account"),
-                BottomNavigationBarItem(icon: Icon(Icons.phone), label: "Customization")
+                // BottomNavigationBarItem(icon: Icon(Icons.phone), label: "Customization")
               ],
               onTap: (value) {
                 setPage(value);
