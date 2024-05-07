@@ -108,7 +108,10 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat', style: TextStyle(color: Theme.of(context).colorScheme.surface),),
+        title: Text(
+          'Chat',
+          style: TextStyle(color: Theme.of(context).colorScheme.surface),
+        ),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
@@ -131,8 +134,13 @@ class _ChatState extends State<Chat> {
                   startRecord();
                 }
               },
-              child: Icon(_isRecording ? Icons.stop : Icons.mic),
-              backgroundColor: _isRecording ? Colors.red : Colors.blue,
+              child: Icon(
+                _isRecording ? Icons.stop : Icons.mic,
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              backgroundColor: _isRecording
+                  ? Colors.red
+                  : Theme.of(context).colorScheme.primary,
             ),
           ),
         ],

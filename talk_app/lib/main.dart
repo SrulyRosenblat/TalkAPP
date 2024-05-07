@@ -43,20 +43,20 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context)=>ChangeNotifierProvider(
-    create:(context)=>ThemeProvider(),
-    builder:(context,_){
-      final themeProvider = Provider.of<ThemeProvider>(context);
-      return MaterialApp(
-        title: 'Flutter Demo',
-        themeMode: themeProvider.themeMode,
-        theme: themeProvider.lightTheme,
-        darkTheme: themeProvider.darkTheme,
-        home: const MyHomePage(title: 'Talk App'),
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+        create: (context) => ThemeProvider(),
+        builder: (context, _) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
+          return MaterialApp(
+            title: 'Flutter Demo',
+            themeMode: themeProvider.themeMode,
+            theme: themeProvider.lightTheme,
+            darkTheme: themeProvider.darkTheme,
+            home: const MyHomePage(title: 'Talk App'),
+          );
+        },
       );
-    },
-  );
-
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -106,14 +106,15 @@ class _MyHomePageState extends State<MyHomePage> {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
-            title: Text(widget.title, style: TextStyle(color: Theme.of(context).colorScheme.surface)),
+              title: Text(widget.title,
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.surface)),
               centerTitle: true,
             ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _page,
-
               selectedItemColor: Theme.of(context).colorScheme.primary,
-              unselectedItemColor: Theme.of(context).colorScheme.inversePrimary,
+              unselectedItemColor: Theme.of(context).colorScheme.secondary,
               items: [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(

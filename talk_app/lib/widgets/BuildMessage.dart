@@ -18,7 +18,7 @@ Widget buildMessage(String translatedText, String originalText, String sound,
         if (role == "user")
           IconButton(
             icon: Icon(Icons.volume_up),
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.secondary,
             onPressed: () => playAudio(sound, originalText),
           ),
         Container(
@@ -54,7 +54,8 @@ Widget buildMessage(String translatedText, String originalText, String sound,
         ),
         if (role == "assistant")
           IconButton(
-            icon: Icon(Icons.volume_up),
+            icon: Icon(Icons.volume_up,
+                color: Theme.of(context).colorScheme.secondary),
             color: Colors.black,
             // onPressed: () => _speak(translatedTexts),
             onPressed: () => playAudio(sound, originalText),
