@@ -1,10 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:talk_app/database_middleware.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 
 FlutterTts flutterTts = FlutterTts();
@@ -15,7 +11,7 @@ Widget buildMessage(String translatedText, String originalText, String sound,
     padding: const EdgeInsets.all(8.0),
     child: GestureDetector(
       onDoubleTap: () {
-        print('double tap ${id}, ${isFavorite}');
+        print('double tap $id, $isFavorite');
         favorite(id);
       },
       child: Row(
@@ -25,7 +21,10 @@ Widget buildMessage(String translatedText, String originalText, String sound,
         children: [
           if (role == "user")
             IconButton(
-              icon: Icon(Icons.volume_up),
+              icon: Icon(
+                Icons.volume_up,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
               color: Colors.black,
               onPressed: () => playAudio(sound, originalText),
             ),
@@ -36,11 +35,12 @@ Widget buildMessage(String translatedText, String originalText, String sound,
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.7,
+                  // minWidth: MediaQuery.of(context).size.width * 0.7,
                 ),
                 decoration: BoxDecoration(
                   color: role == "assistant"
-                      ? Color(0xFF8A8AFF)
-                      : Color(0xFF7AA7FF),
+                      ? const Color(0xFF8A8AFF)
+                      : const Color(0xFF7AA7FF),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -55,18 +55,19 @@ Widget buildMessage(String translatedText, String originalText, String sound,
                   children: [
                     Text(
                       originalText,
-                      style: TextStyle(fontSize: 16.0, color: Colors.white),
+                      style:
+                          const TextStyle(fontSize: 16.0, color: Colors.white),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       translatedText,
-                      style: TextStyle(fontSize: 14.0, color: Colors.white70),
+                      style: const TextStyle(
+                          fontSize: 14.0, color: Colors.white70),
                     ),
-                    isFavorite
-                        ? SizedBox(
-                            height: 30,
-                          )
-                        : Container()
+                    SizedBox(
+                      height: isFavorite ? 30 : 0,
+                      width: MediaQuery.of(context).size.width * 0.7,
+                    )
                   ],
                 ),
               ),
@@ -74,14 +75,15 @@ Widget buildMessage(String translatedText, String originalText, String sound,
                 bottom: 10,
                 left: 10,
                 child: isFavorite
-                    ? Icon(Icons.favorite, color: Colors.red)
+                    ? const Icon(Icons.favorite, color: Colors.red)
                     : Container(),
               ),
             ],
           ),
           if (role == "assistant")
             IconButton(
-              icon: Icon(Icons.volume_up),
+              icon: Icon(Icons.volume_up,
+                  color: Theme.of(context).colorScheme.secondary),
               color: Colors.black,
               // onPressed: () => _speak(translatedTexts),
               onPressed: () => playAudio(sound, originalText),
