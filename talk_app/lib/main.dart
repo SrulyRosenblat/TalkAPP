@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talk_app/firebase_options.dart';
 import 'package:talk_app/pages/ChatSelector.dart';
-import 'package:talk_app/pages/SettingModel/Theme.dart';
-import 'package:talk_app/pages/Settings.dart';
+import 'package:talk_app/pages/Favorites.dart';
 import 'package:talk_app/pages/Account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talk_app/pages/SignIn.dart';
 
-import 'package:talk_app/pages/Customization.dart';
 import 'package:talk_app/pages/SettingModel/Theme.dart';
 import 'package:talk_app/pages/SettingModel/ThemeWidget.dart';
 
@@ -29,6 +27,20 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static const customColorScheme = ColorScheme(
+    primary: Color(0xFF7AA7FF),
+    secondary: Colors.green,
+    surface: Colors.white,
+    background: Colors.white,
+    error: Colors.red,
+    onPrimary: Color(0xFF0031AF),
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onBackground: Colors.black,
+    onError: Colors.white,
+    brightness: Brightness.light,
+  );
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context)=>ChangeNotifierProvider(
@@ -38,18 +50,13 @@ class MyApp extends StatelessWidget {
       return MaterialApp(
         title: 'Flutter Demo',
         themeMode: themeProvider.themeMode,
-        theme: lightMode,
-        darkTheme: darkMode,
-        // theme: ThemeData(
-        //   // This is the theme of your application.
-        //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        //   useMaterial3: true,
-        // ),
-        home: const MyHomePage(title: 'talk app'),
+        theme: themeProvider.lightTheme,
+        darkTheme: themeProvider.darkTheme,
+        home: const MyHomePage(title: 'Talk App'),
       );
     },
   );
-  }
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -60,25 +67,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   int _page = 0;
-  User? _user;
 
   void setPage(int page) {
     setState(() {
       _page = page;
-    });
-  }
-
-  void _setUser(User? user) {
-    setState(() {
-      _user = user;
-    });
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
     });
   }
 
@@ -98,34 +91,35 @@ class _MyHomePageState extends State<MyHomePage> {
           Widget page;
           switch (_page) {
             case 0:
-              page = ChatSelector();
+              page = ChatSelector(user: currentUser!);
+              break;
             case 1:
-              page = Settings();
+              page = Favorites(user: currentUser!);
+              break;
             case 2:
               page = Account(auth: _auth, user: currentUser!);
-            // case 3:
-            //   page = Customization();
+              break;
             default:
               page = Center(child: Text("error"));
           }
 
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text(widget.title),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+            title: Text(widget.title, style: TextStyle(color: Theme.of(context).colorScheme.surface)),
               centerTitle: true,
             ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _page,
-              // selectedItemColor: Colors.blue,
-              // unselectedItemColor: Colors.grey,
+
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              unselectedItemColor: Theme.of(context).colorScheme.inversePrimary,
               items: [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.settings), label: "Settings"),
+                    icon: Icon(Icons.favorite), label: "Favorites"),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.account_circle_rounded), label: "account"),
-                // BottomNavigationBarItem(icon: Icon(Icons.phone), label: "Customization")
+                    icon: Icon(Icons.account_circle_rounded), label: "Account")
               ],
               onTap: (value) {
                 setPage(value);
