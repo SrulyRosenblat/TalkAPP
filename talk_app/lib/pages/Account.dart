@@ -1,45 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:provider/provider.dart';
+import 'package:talk_app/pages/SettingModel/Theme.dart';
+
 class Account extends StatelessWidget {
   final User user;
   final FirebaseAuth auth;
 
   const Account({super.key, required this.user, required this.auth});
-
-  void _changeLanguage(BuildContext context) {
+  void showColorPicker(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String selectedLanguage = 'English';
         return AlertDialog(
-          title: const Center(child: Text('Select a Language')),
-          content: DropdownButtonFormField<String>(
-            isExpanded: true,
-            icon: const Icon (
-              Icons.arrow_drop_down_circle,
-              color: Color(0xFF7AA7FF),
+          title: const Text('Select Color'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  title: const Text('Red'),
+                  onTap: () {
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .updateColor(Colors.red);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Blue'),
+                  onTap: () {
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .updateColor(Colors.blue);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Green'),
+                  onTap: () {
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .updateColor(Colors.green);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Yellow'),
+                  onTap: () {
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .updateColor(Colors.yellow);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Purple'),
+                  onTap: () {
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .updateColor(Colors.purple);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Default'),
+                  onTap: () {
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .updateColor(Colors.white);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
-            value: selectedLanguage,
-            onChanged: (String? newValue) {
-              selectedLanguage = newValue!;
-            },
-            items: <String>['English', 'Spanish', 'French', 'German', 'Hebrew', 'Ukrainian']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
           ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
         );
       },
     );
@@ -47,72 +77,136 @@ class Account extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    // theme: ThemeData(
+    //   colorSchemeSeed: Colors.red,
+    // );
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset('assets/userimage.png', height: 100),
           Text(
-            user.displayName ?? "Anonymous",
-            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+            user.email ?? "Anonymous",
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: null,
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF7AA7FF)),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            ),
-            child: const SizedBox(
-              width: 300,
-              child: Text(
-                'Translation History',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .background, // Set the background color of the container
+                borderRadius: BorderRadius.circular(
+                    10.0), // Adjust the corner radius as needed
+                boxShadow: [
+                  // Optional: Add a shadow for depth
+                  BoxShadow(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 7,
+                    offset: Offset(0, 1), // Changes position of shadow
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child:
+                              //padding: EdgeInsets.only(left: 20),
+                              Text(
+                            'Toggle Theme',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .inverseSurface,
+                                fontSize: 20),
+                          ),
+                          //)
+                          // Text('Toggle Theme', textAlign: TextAlign.start),
+                        ),
+                        Switch(
+                          value: themeProvider.isDarkMode,
+                          onChanged: (bool value) {
+                            final provider = Provider.of<ThemeProvider>(context,
+                                listen: false);
+                            provider.toggleTheme(value);
+                          },
+                          // activeColor:Theme.of(context).colorScheme.primary,
+                          activeColor: Colors.white,
+                          activeTrackColor: Colors.green,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Additional content can be added here
+                ],
               ),
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            "Select your language",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _changeLanguage(context);
-            },
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF7AA7FF)),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            ),
-            child: const SizedBox(
-              width: 300,
-              child: Text(
-                'English',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .background, // Set the background color of the container
+                borderRadius: BorderRadius.circular(
+                    10.0), // Adjust the corner radius as needed
+                boxShadow: [
+                  // Optional: Add a shadow for depth
+                  BoxShadow(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 7,
+                    offset: Offset(0, 1), // Changes position of shadow
+                  ),
+                ],
               ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            "Select language to practice",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _changeLanguage(context);
-            },
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF7AA7FF)),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            ),
-            child: const SizedBox(
-              width: 300,
-              child: Text(
-                'English',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child:
+                              //padding: EdgeInsets.only(left: 20),
+                              Text(
+                            'Change Theme Color',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .inverseSurface,
+                                fontSize: 20),
+                          ),
+                          //)
+                          // Text('Toggle Theme', textAlign: TextAlign.start),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => showColorPicker(context),
+                          style: ButtonStyle(),
+                          child: const Text('>'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Additional content can be added here
+                ],
               ),
             ),
           ),
@@ -120,15 +214,20 @@ class Account extends StatelessWidget {
           ElevatedButton(
             onPressed: auth.signOut,
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFFFF7A7A)),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              // backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFFFF7A7A)),
+              // foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              backgroundColor: MaterialStateProperty.all<Color>(
+                  Theme.of(context).colorScheme.primary),
+              foregroundColor: MaterialStateProperty.all<Color>(
+                  Theme.of(context).colorScheme.secondary),
             ),
-            child: const SizedBox(
+            child: SizedBox(
               width: 300,
               child: Text(
                 'Log Out',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(
+                    fontSize: 16, color: Theme.of(context).colorScheme.surface),
               ),
             ),
           ),

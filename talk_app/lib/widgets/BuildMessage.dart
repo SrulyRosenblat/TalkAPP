@@ -75,15 +75,16 @@ Widget buildMessage(String translatedText, String originalText, String sound,
               ),
             ],
           ),
-          if (role == "assistant")
-            IconButton(
-              icon: const Icon(Icons.volume_up),
-              color: Colors.black,
-              // onPressed: () => _speak(translatedTexts),
-              onPressed: () => playAudio(sound, originalText),
-            ),
-        ],
-      ),
+        ),
+        if (role == "assistant")
+          IconButton(
+            icon: Icon(Icons.volume_up,
+                color: Theme.of(context).colorScheme.secondary),
+            color: Colors.black,
+            // onPressed: () => _speak(translatedTexts),
+            onPressed: () => playAudio(sound, originalText),
+          ),
+      ],
     ),
   );
 }

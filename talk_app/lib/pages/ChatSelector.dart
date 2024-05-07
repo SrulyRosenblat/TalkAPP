@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:talk_app/database_middleware.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Chat.dart';
+import 'dart:math';
+
+import 'package:provider/provider.dart';
+import 'package:talk_app/pages/SettingModel/Theme.dart';
 
 class ChatSelector extends StatefulWidget {
   final User user;
@@ -87,20 +91,21 @@ class ChatSelectorState extends State<ChatSelector> {
   }
 
   Widget buildChat(int chatId, String title, String subtitle) {
+
     return Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF7AA7FF), // Blue background color
+          color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(8), // Rounded rectangle corners
         ),
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
         child: ListTile(
           title: Text(title,
-              style: const TextStyle(
-                  color: Colors.white,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.surface,
                   fontSize: 24)), // Providing a fallback value for null
           subtitle: Text(subtitle,
-              style: const TextStyle(
-                  color: Colors.white)), // Providing a fallback value for null
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.surface)), // Providing a fallback value for null
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -113,9 +118,10 @@ class ChatSelectorState extends State<ChatSelector> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select a Chat'),
+        title: Text('Select a Chat', style: TextStyle(color: Theme.of(context).colorScheme.inverseSurface),),
         centerTitle: true,
       ),
       body: StreamBuilder<Map<String, dynamic>>(
@@ -150,9 +156,10 @@ class ChatSelectorState extends State<ChatSelector> {
         onPressed: () => _createChat(context),
         tooltip: 'New Chat',
         shape: const CircleBorder(),
-        child: const Icon(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(
           Icons.add,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
         ),
       ),
     );

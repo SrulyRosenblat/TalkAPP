@@ -1,11 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:talk_app/firebase_options.dart';
 import 'package:talk_app/pages/ChatSelector.dart';
 import 'package:talk_app/pages/Favorites.dart';
 import 'package:talk_app/pages/Account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talk_app/pages/SignIn.dart';
+
+import 'package:talk_app/pages/SettingModel/Theme.dart';
+import 'package:talk_app/pages/SettingModel/ThemeWidget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,18 +43,19 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF0031AF)),
-        colorScheme: customColorScheme,
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Talk App'),
-    );
-  }
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+        create: (context) => ThemeProvider(),
+        builder: (context, _) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
+          return MaterialApp(
+            title: 'Flutter Demo',
+            themeMode: themeProvider.themeMode,
+            theme: themeProvider.lightTheme,
+            darkTheme: themeProvider.darkTheme,
+            home: const MyHomePage(title: 'Talk App'),
+          );
+        },
+      );
 }
 
 class MyHomePage extends StatefulWidget {
@@ -100,14 +105,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               title: Text(widget.title,
-                  style: const TextStyle(color: Colors.white)),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.surface)),
               centerTitle: true,
             ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _page,
-              items: const [
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              unselectedItemColor: Theme.of(context).colorScheme.secondary,
+              items: [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.favorite), label: "Favorites"),

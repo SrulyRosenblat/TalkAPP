@@ -59,6 +59,7 @@ class _ChatState extends State<Chat> {
   void dispose() {
     chatSubscription.cancel();
     audioPlayer.dispose();
+
     super.dispose();
   }
 
@@ -111,9 +112,12 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Text(
+          'Chat',
+          style: TextStyle(color: Theme.of(context).colorScheme.surface),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: Column(
         children: [
@@ -140,8 +144,13 @@ class _ChatState extends State<Chat> {
                   startRecord();
                 }
               },
-              backgroundColor: _isRecording ? Colors.red : Colors.blue,
-              child: Icon(_isRecording ? Icons.stop : Icons.mic),
+              child: Icon(
+                _isRecording ? Icons.stop : Icons.mic,
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              backgroundColor: _isRecording
+                  ? Colors.red
+                  : Theme.of(context).colorScheme.primary,
             ),
           ),
         ],
