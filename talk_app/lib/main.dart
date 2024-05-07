@@ -43,20 +43,21 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context)=>ChangeNotifierProvider(
-    create:(context)=>ThemeProvider(),
-    builder:(context,_){
-      final themeProvider = Provider.of<ThemeProvider>(context);
-      return MaterialApp(
-        title: 'Flutter Demo',
-        themeMode: themeProvider.themeMode,
-        theme: themeProvider.lightTheme,
-        darkTheme: themeProvider.darkTheme,
-        home: const MyHomePage(title: 'Talk App'),
+  Widget build(BuildContext context) =>
+      ChangeNotifierProvider(
+        create: (context) => ThemeProvider(),
+        builder: (context, _) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
+          return MaterialApp(
+            title: 'Flutter Demo',
+            themeMode: themeProvider.themeMode,
+            theme: themeProvider.lightTheme,
+            darkTheme: themeProvider.darkTheme,
+            home: const MyHomePage(title: 'Talk App'),
+          );
+        },
       );
-    },
-  );
-
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
