@@ -77,10 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
 
     return StreamBuilder(
-        stream: _auth.authStateChanges(),
+        stream: auth.authStateChanges(),
         builder: (context, userSnapshot) {
           if (userSnapshot.data == null) {
             return const SignIn();
@@ -97,10 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
               page = Favorites(user: currentUser!);
               break;
             case 2:
-              page = Account(auth: _auth, user: currentUser!);
+              page = Account(auth: auth, user: currentUser!);
               break;
             default:
-              page = Center(child: Text("error"));
+              page = const Center(child: Text("error"));
           }
 
           return Scaffold(
