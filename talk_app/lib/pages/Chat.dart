@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record_mp3/record_mp3.dart';
@@ -37,7 +36,7 @@ class _ChatState extends State<Chat> {
     // Replace 4 with chatIdInt
     chatSubscription = chatStream(chatIdInt).listen((chatData) {
       setState(() {
-        print("LOOK ->${chatData}");
+        print("LOOK ->$chatData");
         messages = List.generate(chatData['originalTexts'].length, (index) {
           return {
             'textNative': chatData['originalTexts'][index],
@@ -86,7 +85,7 @@ class _ChatState extends State<Chat> {
   void stopRecord() async {
     bool result = RecordMp3.instance.stop();
     if (result && _recordFilePath != null) {
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       _sendAudioFile(_recordFilePath!);
       setState(() {
         _isRecording = false;
@@ -120,11 +119,10 @@ class _ChatState extends State<Chat> {
         children: [
           Expanded(
             child: ListView.builder(
-              reverse: true,
               itemCount: messages.length,
               itemBuilder: (context, index) => buildMessage(
-                  messages[index]['textNative'],
                   messages[index]['textForeign'],
+                  messages[index]['textNative'],
                   messages[index]['soundUrl'],
                   messages[index]['role'],
                   messages[index]['isFavorited'],
@@ -142,8 +140,8 @@ class _ChatState extends State<Chat> {
                   startRecord();
                 }
               },
-              child: Icon(_isRecording ? Icons.stop : Icons.mic),
               backgroundColor: _isRecording ? Colors.red : Colors.blue,
+              child: Icon(_isRecording ? Icons.stop : Icons.mic),
             ),
           ),
         ],

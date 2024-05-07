@@ -72,10 +72,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
 
     return StreamBuilder(
-        stream: _auth.authStateChanges(),
+        stream: auth.authStateChanges(),
         builder: (context, userSnapshot) {
           if (userSnapshot.data == null) {
             return const SignIn();
@@ -92,21 +92,22 @@ class _MyHomePageState extends State<MyHomePage> {
               page = Favorites(user: currentUser!);
               break;
             case 2:
-              page = Account(auth: _auth, user: currentUser!);
+              page = Account(auth: auth, user: currentUser!);
               break;
             default:
-              page = Center(child: Text("error"));
+              page = const Center(child: Text("error"));
           }
 
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text(widget.title, style: TextStyle(color: Colors.white)),
+              title: Text(widget.title,
+                  style: const TextStyle(color: Colors.white)),
               centerTitle: true,
             ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _page,
-              items: [
+              items: const [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.favorite), label: "Favorites"),
