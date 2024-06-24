@@ -3,6 +3,11 @@ This is a flutter android app created as a project for the Intro to Flutter clas
 
 To create the backend we utilized various openai technologies such as ChatGPT, TTS and whisper, dart and alfred for the code as well as googles GCP for hosting and audio storage.
 
+### Features
+- Automatic transcription of users voice.
+- AI replies in audio and text.
+- Translation of all messeges to aid learning.
+
 ### mockup
 
 [figma mockup](https://www.figma.com/design/fYEbsNArHXvlWg8LGrmxHu/App-Mockup?node-id=0-1&t=w57Vp6wrly7ACVMv-1)
